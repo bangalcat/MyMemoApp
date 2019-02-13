@@ -13,15 +13,25 @@ import com.example.semaj.mymemoapp.data.MemoDataSource;
 import java.util.ArrayList;
 import java.util.List;
 
+//Singleton
 public class LocalMemoDataSource implements MemoDataSource {
+
+    private static LocalMemoDataSource INSTANCE = null;
 
     private MemoDbHelper mDbHelper;
 
     private SQLiteDatabase mDb;
 
-    public LocalMemoDataSource(Context context) {
+    private LocalMemoDataSource(Context context) {
         this.mDbHelper = new MemoDbHelper(context.getApplicationContext());
         mDb = mDbHelper.getWritableDatabase();
+    }
+
+    public static LocalMemoDataSource getInstance(Context context){
+        if (INSTANCE == null)
+            INSTANCE = new LocalMemoDataSource(context);
+
+        return INSTANCE;
     }
 
     @Override

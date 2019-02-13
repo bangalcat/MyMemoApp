@@ -5,7 +5,7 @@
     android:id="@+id/linearLayout"
     android:layout_width="match_parent"
     android:layout_height="100dp"
-    android:layout_marginBottom="2dp"
+    android:layout_marginBottom="4dp"
     android:background="@drawable/memo_background">
 
     <TextView

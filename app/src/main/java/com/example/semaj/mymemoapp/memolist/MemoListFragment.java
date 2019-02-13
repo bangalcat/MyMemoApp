@@ -1,11 +1,15 @@
-package com.example.semaj.mymemoapp;
+package com.example.semaj.mymemoapp.memolist;
 
 
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.example.semaj.mymemoapp.R;
 
 
 /**
@@ -16,6 +20,10 @@ import android.view.ViewGroup;
 public class MemoListFragment extends Fragment implements MainContract.View {
 
     private MainContract.Presenter mPresenter;
+
+    //components
+    private FloatingActionButton mAddBtn;
+    private RecyclerView mRcvMemoList;
 
     public MemoListFragment() {
         // Required empty public constructor
@@ -42,8 +50,19 @@ public class MemoListFragment extends Fragment implements MainContract.View {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_memo_list, container, false);
+        View root =  inflater.inflate(R.layout.fragment_memo_list, container, false);
+
+        mAddBtn = getActivity().findViewById(R.id.fab_add);
+        mAddBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mPresenter.addNewMemo();
+            }
+        });
+
+        return root;
     }
+
 
     @Override
     public void setPresenter(MainContract.Presenter presenter) {

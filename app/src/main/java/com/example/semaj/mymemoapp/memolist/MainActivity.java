@@ -1,8 +1,13 @@
-package com.example.semaj.mymemoapp;
+package com.example.semaj.mymemoapp.memolist;
 
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+
+import com.example.semaj.mymemoapp.R;
+import com.example.semaj.mymemoapp.Utils;
+import com.example.semaj.mymemoapp.data.MemoRepository;
+import com.example.semaj.mymemoapp.data.local.LocalMemoDataSource;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -23,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         //create new presenter
-
+        mPresenter = new MemoListPresenter(MemoRepository.getInstance(LocalMemoDataSource.getInstance(this)), fragment);
 
         //fab id
         mAddBtn = findViewById(R.id.fab_add);
