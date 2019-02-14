@@ -1,8 +1,10 @@
 package com.example.semaj.mymemoapp.memolist;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -11,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.semaj.mymemoapp.R;
+import com.example.semaj.mymemoapp.addeditmemo.AddEditMemoActivity;
 import com.example.semaj.mymemoapp.data.Memo;
 
 import java.util.List;
@@ -36,7 +39,7 @@ public class MemoListFragment extends Fragment implements MainContract.View {
         }
     };
 
-    private MemoListAdapter<Memo> mAdapter;
+    private MemoListAdapter mAdapter;
 
     public MemoListFragment() {
         // Required empty public constructor
@@ -56,7 +59,7 @@ public class MemoListFragment extends Fragment implements MainContract.View {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mAdapter = new MemoListAdapter<>(mClickListener);
+        mAdapter = new MemoListAdapter(mClickListener);
     }
 
     @Override
@@ -94,6 +97,8 @@ public class MemoListFragment extends Fragment implements MainContract.View {
     @Override
     public void showAddMemo() {
         //create new activity
+        Intent intent = new Intent(getContext(), AddEditMemoActivity.class);
+        startActivityForResult(intent, AddEditMemoActivity.REQUEST_ADD_MEMO);
     }
 
     @Override
@@ -103,6 +108,6 @@ public class MemoListFragment extends Fragment implements MainContract.View {
 
     @Override
     public void showMessage(String message) {
-
+        Snackbar.make(getView(), message, Snackbar.LENGTH_SHORT).show();
     }
 }

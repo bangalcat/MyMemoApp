@@ -4,11 +4,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 import com.example.semaj.mymemoapp.R;
+import com.example.semaj.mymemoapp.Utils;
 import com.example.semaj.mymemoapp.data.MemoRepository;
 import com.example.semaj.mymemoapp.data.local.LocalMemoDataSource;
 
 public class AddEditMemoActivity extends AppCompatActivity {
 
+    public static final int REQUEST_ADD_MEMO = 0x11;
     private AddEditMemoPresenter mPresenter;
 
     @Override
@@ -22,6 +24,7 @@ public class AddEditMemoActivity extends AppCompatActivity {
 
         if(fragment == null){
             fragment = AddEditMemoFragment.newInstance(memoId);
+            Utils.addFragmentToActivity(getSupportFragmentManager(),fragment,R.id.content_frame);
         }
 
         mPresenter = new AddEditMemoPresenter(

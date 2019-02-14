@@ -50,7 +50,12 @@ public class MemoListPresenter implements MainContract.Presenter {
     }
 
     @Override
-    public void onResume() {
+    public void subscribe() {
         loadData(isFirstLoad);
+    }
+
+    @Override
+    public void unsubscribe() {
+
     }
 }

@@ -1,12 +1,15 @@
 package com.example.semaj.mymemoapp.addeditmemo;
 
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.EditText;
 
 import com.example.semaj.mymemoapp.R;
 
@@ -18,13 +21,11 @@ import com.example.semaj.mymemoapp.R;
 public class AddEditMemoFragment extends Fragment implements AddEditContract.View {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    public static final String ARG_MEMO_ID = "param1";
+    public static final String ARG_MEMO_ID = "memo_id";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private TextView mTitle;
-    private TextView mContent;
-
+    private EditText mTitle;
+    private EditText mContent;
+    private AddEditContract.Presenter mPresenter;
 
     public AddEditMemoFragment() {
         // Required empty public constructor
@@ -51,6 +52,12 @@ public class AddEditMemoFragment extends Fragment implements AddEditContract.Vie
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        //mPresenter.subscribe();
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
@@ -62,22 +69,38 @@ public class AddEditMemoFragment extends Fragment implements AddEditContract.Vie
     }
 
     @Override
-    public void showMemoList() {
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        //inflater.inflate(R.menu.addedit_memo_menu, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
 
+    @Override
+    public void showMemoList() {
+        getActivity().setResult(Activity.RESULT_OK);
+        getActivity().finish();
     }
 
     @Override
     public void setTitle(String title) {
-
+        mTitle.setText(title);
     }
 
     @Override
     public void setContent(String content) {
+        mContent.setText(content);
+    }
 
+    //toggle editable
+    @Override
+    public void toggleEditMode(boolean editable) {
+        mTitle.setFocusable(editable);
+        mTitle.setFocusableInTouchMode(true);
+        mContent.setFocusable(editable);
+        mContent.setFocusableInTouchMode(true);
     }
 
     @Override
     public void setPresenter(AddEditContract.Presenter presenter) {
-
+        this.mPresenter = presenter;
     }
 }

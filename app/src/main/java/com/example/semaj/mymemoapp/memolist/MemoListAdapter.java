@@ -13,26 +13,26 @@ import com.example.semaj.mymemoapp.R;
 import com.example.semaj.mymemoapp.data.Memo;
 
 
-public class MemoListAdapter<T extends Memo> extends ListAdapter<T, MemoListAdapter.MemoViewHolder> {
+public class MemoListAdapter extends ListAdapter<Memo, MemoListAdapter.MemoViewHolder> {
 
     private ItemClickListener<Memo> mListener;
 
     public MemoListAdapter(ItemClickListener<Memo> clickListener) {
-        this(new DiffUtil.ItemCallback<T>() {
+        this(new DiffUtil.ItemCallback<Memo>() {
             @Override
-            public boolean areItemsTheSame(@NonNull T t, @NonNull T t1) {
+            public boolean areItemsTheSame(@NonNull Memo t, @NonNull Memo t1) {
                 return t.getId() == t1.getId();
             }
 
             @Override
-            public boolean areContentsTheSame(@NonNull T t, @NonNull T t1) {
+            public boolean areContentsTheSame(@NonNull Memo t, @NonNull Memo t1) {
                 return t == t1;
             }
         });
         mListener = clickListener;
     }
 
-    protected MemoListAdapter(@NonNull DiffUtil.ItemCallback<T> diffCallback) {
+    protected MemoListAdapter(@NonNull DiffUtil.ItemCallback<Memo> diffCallback) {
         super(diffCallback);
     }
 

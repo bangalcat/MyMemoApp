@@ -36,7 +36,12 @@ public class AddEditMemoPresenter implements AddEditContract.Presenter {
     }
 
     @Override
-    public void onResume() {
+    public void onClickEditMode() {
+        //change to edit mode
+    }
+
+    @Override
+    public void subscribe() {
         if(mShouldLoadData && !isNewMemo())
             mRepo.getMemo(mId, new MemoDataSource.DataCallback() {
                 @Override
@@ -48,6 +53,11 @@ public class AddEditMemoPresenter implements AddEditContract.Presenter {
                 public void onError() {
                 }
             });
+    }
+
+    @Override
+    public void unsubscribe() {
+
     }
 
     private void showMemo(Memo memo){

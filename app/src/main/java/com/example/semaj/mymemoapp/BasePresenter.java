@@ -1,5 +1,6 @@
 package com.example.semaj.mymemoapp;
 
 public interface BasePresenter {
-    void onResume();
+    void subscribe();
+    void unsubscribe();
 }

@@ -10,8 +10,14 @@ public interface AddEditContract {
         void setTitle(String title);
 
         void setContent(String content);
+
+        void toggleEditMode(boolean editable);
     }
     interface Presenter extends BasePresenter{
+
         void saveMemo(String title, String content);
+
+        void onClickEditMode();
+
     }
 }

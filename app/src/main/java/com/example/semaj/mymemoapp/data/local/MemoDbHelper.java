@@ -11,7 +11,7 @@ public class MemoDbHelper extends SQLiteOpenHelper {
 
     private static final String SQL_CREATE_ENTRIES =
             "CREATE TABLE " + MemoDbContract.Entry.TABLE_NAME + " (" +
-                    MemoDbContract.Entry._ID + " INTEGER PRIMARY KEY," +
+                    MemoDbContract.Entry.ENTRY_ID + " INTEGER PRIMARY KEY," +
                     MemoDbContract.Entry.COLUMN_NAME_TITLE + " TEXT," +
                     MemoDbContract.Entry.COLUMN_NAME_CONTENT + " TEXT," +
                     MemoDbContract.Entry.COLUMN_NAME_DATE + " TEXT)";
