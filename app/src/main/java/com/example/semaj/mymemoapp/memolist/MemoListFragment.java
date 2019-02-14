@@ -4,12 +4,16 @@ package com.example.semaj.mymemoapp.memolist;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.semaj.mymemoapp.R;
+import com.example.semaj.mymemoapp.data.Memo;
+
+import java.util.List;
 
 
 /**
@@ -25,6 +29,15 @@ public class MemoListFragment extends Fragment implements MainContract.View {
     private FloatingActionButton mAddBtn;
     private RecyclerView mRcvMemoList;
 
+    private ItemClickListener<Memo> mClickListener = new ItemClickListener<Memo>() {
+        @Override
+        public void onClick(Memo item) {
+            mPresenter.openMemoDetail(item);
+        }
+    };
+
+    private MemoListAdapter<Memo> mAdapter;
+
     public MemoListFragment() {
         // Required empty public constructor
     }
@@ -37,13 +50,13 @@ public class MemoListFragment extends Fragment implements MainContract.View {
      */
     // TODO: Rename and change types and number of parameters
     public static MemoListFragment newInstance() {
-        MemoListFragment fragment = new MemoListFragment();
-        return fragment;
+        return new MemoListFragment();
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mAdapter = new MemoListAdapter<>(mClickListener);
     }
 
     @Override
@@ -51,6 +64,10 @@ public class MemoListFragment extends Fragment implements MainContract.View {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View root =  inflater.inflate(R.layout.fragment_memo_list, container, false);
+
+        mRcvMemoList = root.findViewById(R.id.rcv_memo_list);
+        mRcvMemoList.setLayoutManager(new LinearLayoutManager(getContext()));
+        mRcvMemoList.setAdapter(mAdapter);
 
         mAddBtn = getActivity().findViewById(R.id.fab_add);
         mAddBtn.setOnClickListener(new View.OnClickListener() {
@@ -67,5 +84,25 @@ public class MemoListFragment extends Fragment implements MainContract.View {
     @Override
     public void setPresenter(MainContract.Presenter presenter) {
         this.mPresenter = presenter;
+    }
+
+    @Override
+    public void showMemoDetail(long id) {
+        //create new activity
+    }
+
+    @Override
+    public void showAddMemo() {
+        //create new activity
+    }
+
+    @Override
+    public void showMemoList(List<Memo> itemList) {
+        mAdapter.submitList(itemList);
+    }
+
+    @Override
+    public void showMessage(String message) {
+
     }
 }
