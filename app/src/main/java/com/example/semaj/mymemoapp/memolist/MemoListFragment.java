@@ -174,6 +174,9 @@ public class MemoListFragment extends Fragment implements MainContract.View {
 
     @Override
     public void toggleSelectMode(boolean selectMode) {
-
+        mAdapter.setSelectable(selectMode);
+        //todo select mode back button add
+        //if(selectMode)
+        //
     }
 }

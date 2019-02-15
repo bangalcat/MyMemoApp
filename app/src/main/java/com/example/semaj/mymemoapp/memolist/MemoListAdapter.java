@@ -7,6 +7,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.TextView;
 
 import com.example.semaj.mymemoapp.R;
@@ -17,6 +18,7 @@ import com.example.semaj.mymemoapp.data.Memo;
 public class MemoListAdapter extends ListAdapter<Memo, MemoListAdapter.MemoViewHolder> {
 
     private ItemClickListener<Memo> mListener;
+    private boolean selectable = false;
 
     public MemoListAdapter(ItemClickListener<Memo> clickListener) {
         this(new DiffUtil.ItemCallback<Memo>() {
@@ -46,7 +48,11 @@ public class MemoListAdapter extends ListAdapter<Memo, MemoListAdapter.MemoViewH
 
     @Override
     public void onBindViewHolder(@NonNull MemoViewHolder memoViewHolder, int i) {
-        memoViewHolder.bind(getItem(i),mListener);
+        memoViewHolder.bind(getItem(i),mListener, selectable);
+    }
+
+    public void setSelectable(boolean selectable) {
+        this.selectable = selectable;
     }
 
     //ViewHolder Class
@@ -55,6 +61,7 @@ public class MemoListAdapter extends ListAdapter<Memo, MemoListAdapter.MemoViewH
         private TextView tvTitle;
         private TextView tvContent;
         private TextView tvDate;
+        private CheckBox ckBox;
         private View root;
 
         public MemoViewHolder(@NonNull View itemView) {
@@ -62,12 +69,17 @@ public class MemoListAdapter extends ListAdapter<Memo, MemoListAdapter.MemoViewH
             tvTitle = itemView.findViewById(R.id.title);
             tvContent = itemView.findViewById(R.id.content);
             tvDate = itemView.findViewById(R.id.date);
+            ckBox = itemView.findViewById(R.id.checkBox);
             root = itemView;
         }
-        public void bind(Memo memo, ItemClickListener<Memo> clickListener){
+        public void bind(Memo memo, ItemClickListener<Memo> clickListener, boolean selectable){
             tvTitle.setText(memo.getTitle());
             tvContent.setText(memo.getContent());
             tvDate.setText(Utils.getDateString(memo.getDate()));
+            if(selectable)
+                ckBox.setVisibility(View.VISIBLE);
+            else
+                ckBox.setVisibility(View.GONE);
             root.setOnClickListener(v -> clickListener.onClick(memo));
         }
     }
