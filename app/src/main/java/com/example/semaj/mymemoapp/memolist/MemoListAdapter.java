@@ -17,10 +17,11 @@ import com.example.semaj.mymemoapp.data.Memo;
 
 public class MemoListAdapter extends ListAdapter<Memo, MemoListAdapter.MemoViewHolder> {
 
-    private ItemClickListener<Memo> mListener;
+    private ItemClickListener<Memo> mClickListener;
+    private ItemClickListener<Memo> mSelectListener;
     private boolean selectable = false;
 
-    public MemoListAdapter(ItemClickListener<Memo> clickListener) {
+    public MemoListAdapter(ItemClickListener<Memo> clickListener, ItemClickListener<Memo> selectListener) {
         this(new DiffUtil.ItemCallback<Memo>() {
             @Override
             public boolean areItemsTheSame(@NonNull Memo t, @NonNull Memo t1) {
@@ -32,7 +33,8 @@ public class MemoListAdapter extends ListAdapter<Memo, MemoListAdapter.MemoViewH
                 return t == t1;
             }
         });
-        mListener = clickListener;
+        mClickListener = clickListener;
+        mSelectListener = selectListener;
     }
 
     private MemoListAdapter(@NonNull DiffUtil.ItemCallback<Memo> diffCallback) {
@@ -48,7 +50,7 @@ public class MemoListAdapter extends ListAdapter<Memo, MemoListAdapter.MemoViewH
 
     @Override
     public void onBindViewHolder(@NonNull MemoViewHolder memoViewHolder, int i) {
-        memoViewHolder.bind(getItem(i),mListener, selectable);
+        memoViewHolder.bind(getItem(i),selectable? mClickListener :mSelectListener, selectable);
     }
 
     public void setSelectable(boolean selectable) {
@@ -80,7 +82,16 @@ public class MemoListAdapter extends ListAdapter<Memo, MemoListAdapter.MemoViewH
                 ckBox.setVisibility(View.VISIBLE);
             else
                 ckBox.setVisibility(View.GONE);
-            root.setOnClickListener(v -> clickListener.onClick(memo));
+            root.setOnClickListener(v -> {
+                clickListener.onClick(memo);
+                if(selectable){
+                    ckBox.setChecked(!ckBox.isChecked());
+                }
+            });
+            root.setOnLongClickListener(v -> {
+                clickListener.onLongClick(memo);
+                return true;
+            });
         }
     }
 }

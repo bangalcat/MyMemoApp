@@ -29,5 +29,7 @@ public interface MainContract {
         void onClickDeleteAllMemo();
 
         void onLongClickMemo(Memo item);
+
+        void selectOne(Memo item);
     }
 }

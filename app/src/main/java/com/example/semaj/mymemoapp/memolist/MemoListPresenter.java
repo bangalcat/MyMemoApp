@@ -74,6 +74,11 @@ public class MemoListPresenter implements MainContract.Presenter {
     }
 
     @Override
+    public void selectOne(Memo item) {
+
+    }
+
+    @Override
     public void subscribe() {
         loadData(isFirstLoad);
     }

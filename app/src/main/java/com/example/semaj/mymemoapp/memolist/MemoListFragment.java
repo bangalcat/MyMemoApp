@@ -53,6 +53,17 @@ public class MemoListFragment extends Fragment implements MainContract.View {
     };
 
     private MemoListAdapter mAdapter;
+    private ItemClickListener<Memo> mSelectListener = new ItemClickListener<Memo>() {
+        @Override
+        public void onClick(Memo item) {
+            mPresenter.selectOne(item);
+        }
+
+        @Override
+        public void onLongClick(Memo item) {
+            //do nothing
+        }
+    };
 
     public MemoListFragment() {
         // Required empty public constructor
@@ -72,7 +83,7 @@ public class MemoListFragment extends Fragment implements MainContract.View {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mAdapter = new MemoListAdapter(mClickListener);
+        mAdapter = new MemoListAdapter(mClickListener, mSelectListener);
     }
 
     @Override
@@ -175,6 +186,7 @@ public class MemoListFragment extends Fragment implements MainContract.View {
     @Override
     public void toggleSelectMode(boolean selectMode) {
         mAdapter.setSelectable(selectMode);
+        mAdapter.notifyDataSetChanged();
         //todo select mode back button add
         //if(selectMode)
         //
