@@ -12,6 +12,8 @@ public interface AddEditContract {
         void setContent(String content);
 
         void toggleEditMode(boolean editable);
+
+        void showMessage(String message);
     }
     interface Presenter extends BasePresenter{
 

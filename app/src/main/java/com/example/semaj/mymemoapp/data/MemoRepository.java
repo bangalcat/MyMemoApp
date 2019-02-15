@@ -2,10 +2,13 @@ package com.example.semaj.mymemoapp.data;
 
 import android.support.annotation.NonNull;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import io.reactivex.Completable;
+import io.reactivex.Flowable;
+import io.reactivex.Single;
 
 //Singleton
 public class MemoRepository implements MemoDataSource {
@@ -29,46 +32,32 @@ public class MemoRepository implements MemoDataSource {
     }
 
     @Override
-    public void getMemoList(@NonNull final DataListCallback callback) {
+    public Flowable<List<Memo>> getMemoList() {
         if(mCachedMemoList != null){
-            callback.onListLoaded(new ArrayList<>(mCachedMemoList.values()));
-            return;
-        }
+            return Flowable.fromIterable(mCachedMemoList.values()).toList().toFlowable();
+        }else
+            mCachedMemoList = new LinkedHashMap<>();
 
-        mLocalDataSource.getMemoList(new DataListCallback() {
-            @Override
-            public void onListLoaded(List<Memo> memoList) {
-                refreshMemoList(memoList);
-                callback.onListLoaded(memoList);
-            }
+        return getAndCacheLocalMemoList();
+    }
 
-            @Override
-            public void onError() {
-                callback.onError();
-            }
-        });
+    private Flowable<List<Memo>> getAndCacheLocalMemoList(){
+        return mLocalDataSource.getMemoList()
+                .flatMap(Flowable::fromIterable)
+                .doOnNext(memo -> mCachedMemoList.put(memo.getId(),memo))
+                .toList()
+                .toFlowable();
     }
 
     @Override
-    public void getMemo(@NonNull Long memoId, @NonNull final DataCallback callback) {
+    public Flowable<Memo> getMemo(@NonNull Long memoId) {
         final Memo cachedMemo = findMemoById(memoId);
         if(cachedMemo != null){
-            callback.onLoaded(cachedMemo);
-            return;
+            return Flowable.just(cachedMemo);
         }
-        mLocalDataSource.getMemo(memoId, new DataCallback() {
-            @Override
-            public void onLoaded(Memo memo) {
-                cachedMemoListNotNull().put(memo.getId(), memo);
-
-                callback.onLoaded(memo);
-            }
-
-            @Override
-            public void onError() {
-                callback.onError();
-            }
-        });
+        return mLocalDataSource.getMemo(memoId)
+                .doOnNext(memo -> cachedMemoListNotNull().put(memo.getId(), memo))
+                .firstElement().toFlowable();
     }
 
     private Memo findMemoById(@NonNull Long id){
@@ -83,14 +72,16 @@ public class MemoRepository implements MemoDataSource {
     }
 
     @Override
-    public void saveMemo(Memo memo) {
-        mLocalDataSource.saveMemo(memo);
-        cachedMemoListNotNull().put(memo.getId(), memo);
+    public Single<Memo> saveMemo(Memo memo) {
+        return mLocalDataSource.saveMemo(memo)
+                .doOnSuccess(memo1 ->
+                        cachedMemoListNotNull().put(memo.getId(), memo)
+                );
     }
 
     private Map<Long, Memo> cachedMemoListNotNull(){
         if(mCachedMemoList == null)
-            mCachedMemoList = new HashMap<>();
+            mCachedMemoList = new LinkedHashMap<>();
         return mCachedMemoList;
     }
 
@@ -98,5 +89,11 @@ public class MemoRepository implements MemoDataSource {
     public void deleteMemo(Long memoId) {
         mLocalDataSource.deleteMemo(memoId);
         cachedMemoListNotNull().remove(memoId);
+    }
+
+    @Override
+    public Completable deleteAllMemo() {
+        return mLocalDataSource.deleteAllMemo()
+                .doOnComplete(() -> mCachedMemoList.clear());
     }
 }

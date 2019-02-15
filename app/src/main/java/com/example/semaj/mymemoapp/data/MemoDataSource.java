@@ -4,6 +4,10 @@ import android.support.annotation.NonNull;
 
 import java.util.List;
 
+import io.reactivex.Completable;
+import io.reactivex.Flowable;
+import io.reactivex.Single;
+
 public interface MemoDataSource {
     interface DataListCallback{
         void onListLoaded(List<Memo> memoList);
@@ -15,11 +19,13 @@ public interface MemoDataSource {
 
         void onError();
     }
-    void getMemoList(@NonNull DataListCallback callback);
+    Flowable<List<Memo>> getMemoList();
 
-    void getMemo(@NonNull Long memoId, @NonNull DataCallback callback);
+    Flowable<Memo> getMemo(@NonNull Long memoId);
 
-    void saveMemo(Memo memo);
+    Single<Memo> saveMemo(Memo memo);
 
     void deleteMemo(Long memoId);
+
+    Completable deleteAllMemo();
 }

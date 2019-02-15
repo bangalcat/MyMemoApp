@@ -4,4 +4,6 @@ import com.example.semaj.mymemoapp.data.Memo;
 
 public interface ItemClickListener<T> {
     void onClick(T item);
+
+    void onLongClick(T item);
 }

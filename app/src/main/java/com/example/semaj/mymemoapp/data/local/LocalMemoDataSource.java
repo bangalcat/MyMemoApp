@@ -7,11 +7,17 @@ import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
 
+import com.example.semaj.mymemoapp.Utils;
 import com.example.semaj.mymemoapp.data.Memo;
 import com.example.semaj.mymemoapp.data.MemoDataSource;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+
+import io.reactivex.Completable;
+import io.reactivex.Flowable;
+import io.reactivex.Single;
 
 //Singleton
 public class LocalMemoDataSource implements MemoDataSource {
@@ -35,9 +41,9 @@ public class LocalMemoDataSource implements MemoDataSource {
     }
 
     @Override
-    public void getMemoList(@NonNull DataListCallback callback) {
+    public Flowable<List<Memo>> getMemoList() {
         String[] projection = {
-                BaseColumns._ID,
+                MemoDbContract.Entry.ENTRY_ID,
                 MemoDbContract.Entry.COLUMN_NAME_TITLE,
                 MemoDbContract.Entry.COLUMN_NAME_CONTENT,
                 MemoDbContract.Entry.COLUMN_NAME_DATE,
@@ -48,25 +54,30 @@ public class LocalMemoDataSource implements MemoDataSource {
         Cursor cursor = mDb.query(
                 MemoDbContract.Entry.TABLE_NAME,
                 projection,
-                selection,
+                null,
                 null,
                 null,
                 null,
                 sortOrder);
         List<Memo> memoList = new ArrayList<>();
         while(cursor.moveToNext()){
-            Long itemId = cursor.getLong(cursor.getColumnIndexOrThrow(MemoDbContract.Entry._ID));
+            Long itemId = cursor.getLong(cursor.getColumnIndexOrThrow(MemoDbContract.Entry.ENTRY_ID));
             String title = cursor.getString(cursor.getColumnIndexOrThrow(MemoDbContract.Entry.COLUMN_NAME_TITLE));
             String content = cursor.getString(cursor.getColumnIndexOrThrow(MemoDbContract.Entry.COLUMN_NAME_CONTENT));
             String date = cursor.getString(cursor.getColumnIndexOrThrow(MemoDbContract.Entry.COLUMN_NAME_DATE));
-            memoList.add(new Memo(itemId, title, content, date));
+            try {
+                memoList.add(new Memo(itemId, title, content, Utils.parseDate(date)));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
         }
         cursor.close();
-        callback.onListLoaded(memoList);
+        return Flowable.fromIterable(memoList)
+                .toList().toFlowable();
     }
 
     @Override
-    public void getMemo(@NonNull Long memoId, @NonNull DataCallback callback) {
+    public Flowable<Memo> getMemo(@NonNull Long memoId) {
         String[] projection = {
                 BaseColumns._ID,
                 MemoDbContract.Entry.COLUMN_NAME_TITLE,
@@ -85,35 +96,50 @@ public class LocalMemoDataSource implements MemoDataSource {
                 null,
                 null);
 
-        while(cursor.moveToNext()) {
+        if(cursor.moveToNext()) {
             Long itemId = cursor.getLong(cursor.getColumnIndexOrThrow(MemoDbContract.Entry._ID));
             String title = cursor.getString(cursor.getColumnIndexOrThrow(MemoDbContract.Entry.COLUMN_NAME_TITLE));
             String content = cursor.getString(cursor.getColumnIndexOrThrow(MemoDbContract.Entry.COLUMN_NAME_CONTENT));
             String date = cursor.getString(cursor.getColumnIndexOrThrow(MemoDbContract.Entry.COLUMN_NAME_DATE));
 
-            Memo memo = new Memo(itemId, title, content, date);
+            Memo memo = null;
+            try {
+                memo = new Memo(itemId, title, content, Utils.parseDate(date));
+            } catch (ParseException e) {
+                e.printStackTrace();
+                return Flowable.error(Exception::new);
+            }
 
             cursor.close();
-            callback.onLoaded(memo);
-            return;
+            return Flowable.just(memo);
         }
-        callback.onError();
+        return Flowable.error(Exception::new);
     }
 
     @Override
-    public void saveMemo(Memo memo) {
+    public Single<Memo> saveMemo(Memo memo) {
         ContentValues values = new ContentValues();
+        values.put(MemoDbContract.Entry.ENTRY_ID, memo.getId());
         values.put(MemoDbContract.Entry.COLUMN_NAME_TITLE, memo.getTitle());
         values.put(MemoDbContract.Entry.COLUMN_NAME_CONTENT, memo.getContent());
-        values.put(MemoDbContract.Entry.COLUMN_NAME_DATE, memo.getDate());
-        long newId = mDb.insert(MemoDbContract.Entry.TABLE_NAME, null, values);
-        memo.setId(newId);
+        values.put(MemoDbContract.Entry.COLUMN_NAME_DATE, Utils.getDateString(memo.getDate()));
+        long rowId = mDb.insertWithOnConflict(MemoDbContract.Entry.TABLE_NAME,null, values, SQLiteDatabase.CONFLICT_IGNORE);
+        if(rowId == -1)
+            mDb.update(MemoDbContract.Entry.TABLE_NAME, values, MemoDbContract.Entry.ENTRY_ID+"=?", new String[]{String.valueOf(memo.getId())});
+
+        return Single.just(memo);
     }
 
     @Override
     public void deleteMemo(Long memoId) {
-        String selection = MemoDbContract.Entry._ID + " LIKE ?";
+        String selection = MemoDbContract.Entry.ENTRY_ID + " LIKE ?";
         String[] args = {String.valueOf(memoId)};
         int deletedRows = mDb.delete(MemoDbContract.Entry.TABLE_NAME, selection, args);
+    }
+
+    @Override
+    public Completable deleteAllMemo() {
+        int deleteRows = mDb.delete(MemoDbContract.Entry.TABLE_NAME, null, null);
+        return Completable.complete();
     }
 }

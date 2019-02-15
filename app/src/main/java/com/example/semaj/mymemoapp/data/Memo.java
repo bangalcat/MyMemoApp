@@ -2,16 +2,18 @@ package com.example.semaj.mymemoapp.data;
 
 import com.example.semaj.mymemoapp.Utils;
 
+import java.util.Date;
+
 public class Memo {
 
-    public Memo(long id, String title, String content, String date) {
+    public Memo(long id, String title, String content, Date date) {
         this.id = id;
         this.title = title;
         this.content = content;
         this.date = date;
     }
 
-    public Memo(String title, String content, String date){
+    public Memo(String title, String content, Date date){
         this(Utils.createKey(), title, content, date);
     }
 
@@ -21,7 +23,7 @@ public class Memo {
 
     private String content;
 
-    private String date;
+    private Date date;
 
     public Long getId() {
         return id;
@@ -35,7 +37,7 @@ public class Memo {
         return content;
     }
 
-    public String getDate() {
+    public Date getDate() {
         return date;
     }
 

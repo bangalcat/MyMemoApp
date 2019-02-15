@@ -11,6 +11,7 @@ import com.example.semaj.mymemoapp.data.local.LocalMemoDataSource;
 public class AddEditMemoActivity extends AppCompatActivity {
 
     public static final int REQUEST_ADD_MEMO = 0x11;
+    public static final int REQUEST_EDIT_MEMO = 0x12;
     private AddEditMemoPresenter mPresenter;
 
     @Override
@@ -31,7 +32,7 @@ public class AddEditMemoActivity extends AppCompatActivity {
                 memoId,
                 MemoRepository.getInstance(LocalMemoDataSource.getInstance(getApplicationContext())),
                 fragment,
-                false
+                memoId != -1
         );
 
     }

@@ -15,6 +15,8 @@ public interface MainContract {
         void showMemoList(List<Memo> itemList);
 
         void showMessage(String message);
+
+        void toggleSelectMode(boolean selectMode);
     }
 
     interface Presenter extends BasePresenter {
@@ -23,5 +25,9 @@ public interface MainContract {
         void addNewMemo();
 
         void openMemoDetail(Memo item);
+
+        void onClickDeleteAllMemo();
+
+        void onLongClickMemo(Memo item);
     }
 }

@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.semaj.mymemoapp.R;
+import com.example.semaj.mymemoapp.Utils;
 import com.example.semaj.mymemoapp.data.Memo;
 
 
@@ -32,7 +33,7 @@ public class MemoListAdapter extends ListAdapter<Memo, MemoListAdapter.MemoViewH
         mListener = clickListener;
     }
 
-    protected MemoListAdapter(@NonNull DiffUtil.ItemCallback<Memo> diffCallback) {
+    private MemoListAdapter(@NonNull DiffUtil.ItemCallback<Memo> diffCallback) {
         super(diffCallback);
     }
 
@@ -54,17 +55,20 @@ public class MemoListAdapter extends ListAdapter<Memo, MemoListAdapter.MemoViewH
         private TextView tvTitle;
         private TextView tvContent;
         private TextView tvDate;
+        private View root;
 
         public MemoViewHolder(@NonNull View itemView) {
             super(itemView);
             tvTitle = itemView.findViewById(R.id.title);
             tvContent = itemView.findViewById(R.id.content);
             tvDate = itemView.findViewById(R.id.date);
+            root = itemView;
         }
         public void bind(Memo memo, ItemClickListener<Memo> clickListener){
             tvTitle.setText(memo.getTitle());
             tvContent.setText(memo.getContent());
-            tvDate.setText(memo.getDate());
+            tvDate.setText(Utils.getDateString(memo.getDate()));
+            root.setOnClickListener(v -> clickListener.onClick(memo));
         }
     }
 }
