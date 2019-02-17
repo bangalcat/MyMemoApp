@@ -80,8 +80,10 @@ public class MemoListAdapter extends ListAdapter<Memo, MemoListAdapter.MemoViewH
             tvDate.setText(Utils.getDateString(memo.getDate()));
             if(selectable)
                 ckBox.setVisibility(View.VISIBLE);
-            else
+            else {
                 ckBox.setVisibility(View.GONE);
+                ckBox.setChecked(false);
+            }
             root.setOnClickListener(v -> {
                 clickListener.onClick(memo);
                 if(selectable){

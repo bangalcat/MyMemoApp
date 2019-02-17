@@ -28,4 +28,6 @@ public interface MemoDataSource {
     void deleteMemo(Long memoId);
 
     Completable deleteAllMemo();
+
+    Completable deleteMemos(long[] ids, int cnt);
 }

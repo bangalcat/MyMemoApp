@@ -103,7 +103,7 @@ public class MemoListFragment extends Fragment implements MainContract.View {
         mBackBtn.setVisibility(View.GONE);
         mBackBtn.setText("Cancel");
         mBackBtn.setOnClickListener(view -> {
-//            mPresenter.onClickSelectCancel();
+            mPresenter.onClickSelectCancel();
         });
         setHasOptionsMenu(true);
 
@@ -138,9 +138,13 @@ public class MemoListFragment extends Fragment implements MainContract.View {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.menu_delete_all:
-                mPresenter.onClickDeleteAllMemo();
+                mPresenter.onClickDeleteSelectedMemos();
                 break;
             case R.id.menu_select:
+                toggleSelectMode(true);
+                break;
+            case R.id.menu_search:
+                toggleSelectMode(false);
                 break;
         }
         return true;

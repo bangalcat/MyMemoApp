@@ -1,13 +1,10 @@
 package com.example.semaj.mymemoapp.memolist;
 
 import com.example.semaj.mymemoapp.data.Memo;
-import com.example.semaj.mymemoapp.data.MemoDataSource;
 import com.example.semaj.mymemoapp.data.MemoRepository;
 
 import java.util.Collections;
-import java.util.List;
 
-import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
@@ -19,6 +16,9 @@ public class MemoListPresenter implements MainContract.Presenter {
     private boolean isFirstLoad;
 
     private CompositeDisposable mCompositeDisposable;
+
+    private long[] selectedIds;
+    private int selectedCnt;
 
     /**
      * Memo Repository, Memo List View
@@ -36,10 +36,16 @@ public class MemoListPresenter implements MainContract.Presenter {
         if(forceUpdate)
             mCompositeDisposable.add(
                     mRepo.getMemoList()
-                            .doOnNext(memoList -> Collections.sort(memoList, (o1, o2) -> o2.getDate().compareTo(o1.getDate())))
+                            .doOnNext(memoList -> {
+                                Collections.sort(memoList, (o1, o2) -> o2.getDate().compareTo(o1.getDate()));
+                                selectedIds = new long[memoList.size()];
+                                selectedCnt = 0;
+                            })
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe(memoList -> mView.showMemoList(memoList),
+                            .subscribe(memoList -> {
+                                    mView.showMemoList(memoList);
+                                },
                                     throwable -> mView.showMessage("메모 목록을 불러오는데 실패하였습니다."))
             );
         isFirstLoad = false;
@@ -56,14 +62,22 @@ public class MemoListPresenter implements MainContract.Presenter {
     }
 
     @Override
-    public void onClickDeleteAllMemo() {
+    public void onClickDeleteSelectedMemos() {
+        int cnt = selectedCnt;
         mCompositeDisposable.add(
-                mRepo.deleteAllMemo()
+                mRepo.deleteMemos(selectedIds, selectedCnt)
                         .subscribeOn(Schedulers.io())
-                        .doOnComplete(() -> loadData(true))
+                        .doOnComplete(() -> {
+                            loadData(true);
+                        })
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(() ->{
-                            mView.showMessage("모든 메모가 삭제되었습니다");
+                            mView.showMessage("선택된 "+cnt+"개 메모가 삭제되었습니다");
+                        },throwable -> {
+                            if(throwable instanceof IndexOutOfBoundsException)
+                                mView.showMessage("선택된 메시지가 없습니다");
+                            else
+                                mView.showMessage("메시지 삭제 오류");
                         })
         );
     }
@@ -73,9 +87,21 @@ public class MemoListPresenter implements MainContract.Presenter {
         mView.toggleSelectMode(true);
     }
 
+    //선택모드에서 아이템 하나 선택
     @Override
     public void selectOne(Memo item) {
+        for(int i=0;i<selectedCnt;++i)
+            if(selectedIds[i]==item.getId()){
+                selectedIds[i] = selectedIds[--selectedCnt];
+            }
+        selectedIds[selectedCnt++] = item.getId();
+    }
 
+    //모든 선택 취소 및 선택창 토글
+    @Override
+    public void onClickSelectCancel() {
+        selectedCnt = 0;
+        mView.toggleSelectMode(false);
     }
 
     @Override

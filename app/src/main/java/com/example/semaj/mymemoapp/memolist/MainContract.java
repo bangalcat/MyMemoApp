@@ -26,10 +26,12 @@ public interface MainContract {
 
         void openMemoDetail(Memo item);
 
-        void onClickDeleteAllMemo();
+        void onClickDeleteSelectedMemos();
 
         void onLongClickMemo(Memo item);
 
         void selectOne(Memo item);
+
+        void onClickSelectCancel();
     }
 }

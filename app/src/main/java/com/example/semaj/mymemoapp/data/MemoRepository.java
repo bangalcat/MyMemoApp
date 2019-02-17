@@ -96,4 +96,15 @@ public class MemoRepository implements MemoDataSource {
         return mLocalDataSource.deleteAllMemo()
                 .doOnComplete(() -> mCachedMemoList.clear());
     }
+
+    @Override
+    public Completable deleteMemos(long[] ids, int cnt) {
+        return mLocalDataSource.deleteMemos(ids, cnt)
+            .doOnComplete(() -> {
+                for (int i = 0; i < cnt; i++) {
+                    long id = ids[i];
+                    mCachedMemoList.remove(id);
+                }
+            });
+    }
 }

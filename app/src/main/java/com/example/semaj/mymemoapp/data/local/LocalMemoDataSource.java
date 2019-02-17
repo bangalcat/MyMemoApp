@@ -142,4 +142,19 @@ public class LocalMemoDataSource implements MemoDataSource {
         int deleteRows = mDb.delete(MemoDbContract.Entry.TABLE_NAME, null, null);
         return Completable.complete();
     }
+
+    @Override
+    public Completable deleteMemos(long[] ids, int cnt) {
+        if(cnt <= 0) return Completable.error(IndexOutOfBoundsException::new);
+
+        String selection = MemoDbContract.Entry.ENTRY_ID + " IN ("+new String(new char[cnt-1]).replace("\0","?,")+"?)";
+        String[] args = new String[cnt];
+        for(int i=0;i<cnt;++i)
+            args[i] = String.valueOf(ids[i]);
+        int deleteRows = mDb.delete(
+            MemoDbContract.Entry.TABLE_NAME,
+            selection,
+            args);
+        return Completable.complete();
+    }
 }
