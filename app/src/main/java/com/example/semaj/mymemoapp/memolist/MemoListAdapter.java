@@ -50,7 +50,7 @@ public class MemoListAdapter extends ListAdapter<Memo, MemoListAdapter.MemoViewH
 
     @Override
     public void onBindViewHolder(@NonNull MemoViewHolder memoViewHolder, int i) {
-        memoViewHolder.bind(getItem(i),selectable? mClickListener :mSelectListener, selectable);
+        memoViewHolder.bind(getItem(i),selectable? mSelectListener :mClickListener, selectable);
     }
 
     public void setSelectable(boolean selectable) {

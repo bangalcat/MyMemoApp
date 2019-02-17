@@ -39,6 +39,7 @@ public class MemoListFragment extends Fragment implements MainContract.View {
     //components
     private FloatingActionButton mAddBtn;
     private RecyclerView mRcvMemoList;
+    private TextView mBackBtn;
 
     private ItemClickListener<Memo> mClickListener = new ItemClickListener<Memo>() {
         @Override
@@ -98,12 +99,16 @@ public class MemoListFragment extends Fragment implements MainContract.View {
 
         mAddBtn = getActivity().findViewById(R.id.fab_add);
         mAddBtn.setOnClickListener(v -> mPresenter.addNewMemo());
+        mBackBtn = root.findViewById(R.id.toolbar_left);
+        mBackBtn.setVisibility(View.GONE);
+        mBackBtn.setText("Cancel");
+        mBackBtn.setOnClickListener(view -> {
+//            mPresenter.onClickSelectCancel();
+        });
         setHasOptionsMenu(true);
 
         Toolbar toolbar =  root.findViewById(R.id.toolbar);
         ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
-        TextView leftToolbar = root.findViewById(R.id.toolbar_left);
-        leftToolbar.setText("");
         TextView rightToolbar = root.findViewById(R.id.toolbar_right);
         rightToolbar.setText("");
         TextView middle = root.findViewById(R.id.toolbar_middle);
@@ -188,7 +193,6 @@ public class MemoListFragment extends Fragment implements MainContract.View {
         mAdapter.setSelectable(selectMode);
         mAdapter.notifyDataSetChanged();
         //todo select mode back button add
-        //if(selectMode)
-        //
+        mBackBtn.setVisibility(selectMode?View.VISIBLE:View.GONE);
     }
 }
