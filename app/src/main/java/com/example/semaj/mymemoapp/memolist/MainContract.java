@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface MainContract {
     interface View extends BaseView<Presenter> {
+        //
         void showMemoDetail(long id);
 
         void showAddMemo();
@@ -30,8 +31,11 @@ public interface MainContract {
 
         void onLongClickMemo(Memo item);
 
+        //select mode에서 메모 하나 선택
         void selectOne(Memo item);
-
+        //선택 모드 취소
         void onClickSelectCancel();
+
+        void filter(String s);
     }
 }

@@ -2,6 +2,8 @@ package com.example.semaj.mymemoapp.memolist;
 
 
 import android.app.Activity;
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -17,6 +19,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.SearchView;
 import android.widget.TextView;
 
 import com.example.semaj.mymemoapp.R;
@@ -35,6 +38,7 @@ import java.util.List;
 public class MemoListFragment extends Fragment implements MainContract.View {
 
     private MainContract.Presenter mPresenter;
+    public static final int DELETE = 0x3;
 
     //components
     private FloatingActionButton mAddBtn;
@@ -50,6 +54,7 @@ public class MemoListFragment extends Fragment implements MainContract.View {
         @Override
         public void onLongClick(Memo item) {
             mPresenter.onLongClickMemo(item);
+            mPresenter.selectOne(item);
         }
     };
 
@@ -65,6 +70,11 @@ public class MemoListFragment extends Fragment implements MainContract.View {
             //do nothing
         }
     };
+    private MenuItem mDeleteMenuItem;
+    private MenuItem mSelectMenuItem;
+    private MenuItem mSelectAllMenuItem;
+    private MenuItem mSearchMenuItem;
+    private SearchView mSearchView;
 
     public MemoListFragment() {
         // Required empty public constructor
@@ -112,7 +122,7 @@ public class MemoListFragment extends Fragment implements MainContract.View {
         TextView rightToolbar = root.findViewById(R.id.toolbar_right);
         rightToolbar.setText("");
         TextView middle = root.findViewById(R.id.toolbar_middle);
-        middle.setText("메모장");
+        middle.setText("");
 
         return root;
     }
@@ -131,13 +141,43 @@ public class MemoListFragment extends Fragment implements MainContract.View {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.main_menu, menu);
+        // menu item - select mode에서 보여주는 메뉴가 다름
+        mSelectMenuItem = menu.getItem(0);
+        mSearchMenuItem = menu.getItem(1);
+        mDeleteMenuItem = menu.getItem(2);
+        mSelectAllMenuItem = menu.getItem(3);
+
+        mDeleteMenuItem.setVisible(false);
+        mSelectAllMenuItem.setVisible(false);
+
+        //searchview
+        SearchManager searchManager = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
+        mSearchView = (SearchView) mSearchMenuItem.getActionView();
+        if(mSearchView != null){
+            mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
+            mSearchView.setQueryHint("search text");
+            mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String s) {
+                    return true;
+                }
+
+                @Override
+                public boolean onQueryTextChange(String s) {
+                    mPresenter.filter(s);
+                    return true;
+                }
+            });
+        }
+
+
         super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
-            case R.id.menu_delete_all:
+            case R.id.menu_delete:
                 mPresenter.onClickDeleteSelectedMemos();
                 break;
             case R.id.menu_select:
@@ -145,6 +185,8 @@ public class MemoListFragment extends Fragment implements MainContract.View {
                 break;
             case R.id.menu_search:
                 toggleSelectMode(false);
+                break;
+            case R.id.menu_select_all:
                 break;
         }
         return true;
@@ -198,5 +240,17 @@ public class MemoListFragment extends Fragment implements MainContract.View {
         mAdapter.notifyDataSetChanged();
         //todo select mode back button add
         mBackBtn.setVisibility(selectMode?View.VISIBLE:View.GONE);
+        if(selectMode) {
+            mSelectAllMenuItem.setVisible(true);
+            mDeleteMenuItem.setVisible(true);
+            mSelectMenuItem.setVisible(false);
+            mSearchMenuItem.setVisible(false);
+        }
+        else {
+            mSelectAllMenuItem.setVisible(false);
+            mDeleteMenuItem.setVisible(false);
+            mSelectMenuItem.setVisible(true);
+            mSearchMenuItem.setVisible(true);
+        }
     }
 }

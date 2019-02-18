@@ -1,5 +1,7 @@
 package com.example.semaj.mymemoapp.memolist;
 
+import android.content.Intent;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -11,6 +13,7 @@ import com.example.semaj.mymemoapp.data.local.LocalMemoDataSource;
 
 public class MainActivity extends AppCompatActivity {
 
+    // 현재는 딱히 가지고 있을 필요 없는 변수
     private MainContract.Presenter mPresenter;
     private FloatingActionButton mAddBtn;
 
@@ -28,9 +31,15 @@ public class MainActivity extends AppCompatActivity {
         }
 
         //create new presenter
+        //presenter 생성시 fragment를 view로 넘겨주면, presenter 안에서 view에 자신을 presenter를 등록
         mPresenter = new MemoListPresenter(MemoRepository.getInstance(LocalMemoDataSource.getInstance(this)), fragment);
 
         //fab id
         mAddBtn = findViewById(R.id.fab_add);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }

@@ -4,12 +4,13 @@ package com.example.semaj.mymemoapp.addeditmemo;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -17,6 +18,7 @@ import android.widget.TextView;
 
 import com.example.semaj.mymemoapp.R;
 import com.example.semaj.mymemoapp.Utils;
+import com.example.semaj.mymemoapp.memolist.MemoListFragment;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -32,6 +34,7 @@ public class AddEditMemoFragment extends Fragment implements AddEditContract.Vie
     private EditText mContent;
     private AddEditContract.Presenter mPresenter;
     private TextView mSaveBtn;
+    private FloatingActionButton mEditBtn;
 
     public AddEditMemoFragment() {
         // Required empty public constructor
@@ -76,7 +79,10 @@ public class AddEditMemoFragment extends Fragment implements AddEditContract.Vie
         View root =  inflater.inflate(R.layout.fragment_add_edit_memo, container, false);
         mTitle = root.findViewById(R.id.etTitle);
         mContent = root.findViewById(R.id.etContent);
-        mSaveBtn = root.findViewById(R.id.toolbar_right);
+        mSaveBtn = getActivity().findViewById(R.id.toolbar_right);
+        setHasOptionsMenu(true);
+        mEditBtn = getActivity().findViewById(R.id.fab_edit);
+        mEditBtn.setOnClickListener(v -> mPresenter.onClickEditMode());
 
         mSaveBtn.setOnClickListener(v -> {
             if(mTitle.isFocusable()) {
@@ -86,11 +92,24 @@ public class AddEditMemoFragment extends Fragment implements AddEditContract.Vie
                 mPresenter.onClickEditMode();
         });
 
-        TextView backBtn = root.findViewById(R.id.toolbar_left);
-        backBtn.setOnClickListener(v -> showMemoList());
-        TextView toolBarTitle = root.findViewById(R.id.toolbar_middle);
-        toolBarTitle.setText("");
         return root;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.edit_menu_delete:
+                mPresenter.deleteMemo();
+                break;
+        }
+        return true;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        if(!mPresenter.isNewMemo())
+            inflater.inflate(R.menu.edit_menu, menu);
+        super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
@@ -117,9 +136,16 @@ public class AddEditMemoFragment extends Fragment implements AddEditContract.Vie
         mContent.setFocusable(editable);
         mContent.setFocusableInTouchMode(editable);
         if(editable) {
-            mSaveBtn.setText("Save");
+            mSaveBtn.setText("SAVE");
+            mSaveBtn.setVisibility(View.VISIBLE);
+            mTitle.setOnClickListener(null);
+            mContent.setOnClickListener(null);
+            mEditBtn.hide();
         } else {
-            mSaveBtn.setText("Edit");
+            mSaveBtn.setVisibility(View.GONE);
+            mTitle.setOnClickListener(v -> mPresenter.onClickEditMode());
+            mContent.setOnClickListener(v -> mPresenter.onClickEditMode());
+            mEditBtn.show();
         }
     }
 

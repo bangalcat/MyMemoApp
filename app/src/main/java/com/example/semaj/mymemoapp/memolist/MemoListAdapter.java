@@ -53,7 +53,7 @@ public class MemoListAdapter extends ListAdapter<Memo, MemoListAdapter.MemoViewH
         memoViewHolder.bind(getItem(i),selectable? mSelectListener :mClickListener, selectable);
     }
 
-    public void setSelectable(boolean selectable) {
+    void setSelectable(boolean selectable) {
         this.selectable = selectable;
     }
 
@@ -92,6 +92,7 @@ public class MemoListAdapter extends ListAdapter<Memo, MemoListAdapter.MemoViewH
             });
             root.setOnLongClickListener(v -> {
                 clickListener.onLongClick(memo);
+                ckBox.setChecked(true);
                 return true;
             });
         }

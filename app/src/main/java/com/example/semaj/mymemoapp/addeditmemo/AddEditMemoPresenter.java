@@ -1,6 +1,7 @@
 package com.example.semaj.mymemoapp.addeditmemo;
 
-import com.example.semaj.mymemoapp.Utils;
+import android.text.TextUtils;
+
 import com.example.semaj.mymemoapp.data.Memo;
 import com.example.semaj.mymemoapp.data.MemoRepository;
 
@@ -30,6 +31,10 @@ public class AddEditMemoPresenter implements AddEditContract.Presenter {
     @Override
     public void saveMemo(String title, String content) {
         Memo memo;
+        if(TextUtils.isEmpty(content)){
+            mView.showMessage("내용을 입력해야 합니다");
+            return;
+        }
         boolean isNew = isNewMemo();
         if(isNew){
             memo = new Memo(title,content, Calendar.getInstance().getTime());
@@ -69,7 +74,11 @@ public class AddEditMemoPresenter implements AddEditContract.Presenter {
                             .subscribe(memo -> {
                                 showMemo(memo);
                                 mView.toggleEditMode(false);
-                            },throwable -> mView.showMessage("Fail to Load Message"))
+                            },throwable -> {
+                                throwable.printStackTrace();
+//                                Log.d(getClass().toString(),"");
+                                mView.showMessage("Fail to Load Message");
+                            })
             );
 
     }
@@ -84,7 +93,13 @@ public class AddEditMemoPresenter implements AddEditContract.Presenter {
         mView.setContent(memo.getContent());
     }
 
-    private boolean isNewMemo(){
+    public boolean isNewMemo(){
         return mId == -1;
+    }
+
+    @Override
+    public void deleteMemo() {
+        mRepo.deleteMemo(mId);
+        mView.showMemoList();
     }
 }

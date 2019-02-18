@@ -21,5 +21,8 @@ public interface AddEditContract {
 
         void onClickEditMode();
 
+        boolean isNewMemo();
+
+        void deleteMemo();
     }
 }

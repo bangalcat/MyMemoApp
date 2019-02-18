@@ -1,7 +1,9 @@
 package com.example.semaj.mymemoapp.addeditmemo;
 
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 
 import com.example.semaj.mymemoapp.R;
 import com.example.semaj.mymemoapp.Utils;
@@ -19,6 +21,12 @@ public class AddEditMemoActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_edit_memo);
 
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        ActionBar ab = getSupportActionBar();
+        ab.setDisplayHomeAsUpEnabled(true);
+        ab.setDisplayShowHomeEnabled(true);
+
         AddEditMemoFragment fragment = (AddEditMemoFragment) getSupportFragmentManager().findFragmentById(R.id.content_frame);
 
         long memoId = getIntent().getLongExtra(AddEditMemoFragment.ARG_MEMO_ID, -1);
@@ -35,5 +43,11 @@ public class AddEditMemoActivity extends AppCompatActivity {
                 memoId != -1
         );
 
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
     }
 }

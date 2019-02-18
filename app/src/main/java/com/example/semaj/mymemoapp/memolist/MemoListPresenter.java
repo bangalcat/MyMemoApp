@@ -1,10 +1,13 @@
 package com.example.semaj.mymemoapp.memolist;
 
+import android.text.TextUtils;
+
 import com.example.semaj.mymemoapp.data.Memo;
 import com.example.semaj.mymemoapp.data.MemoRepository;
 
 import java.util.Collections;
 
+import io.reactivex.Flowable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
@@ -15,18 +18,24 @@ public class MemoListPresenter implements MainContract.Presenter {
     private MainContract.View mView;
     private boolean isFirstLoad;
 
+    // disposable을 관리
+    // clear해주면 알아서 구독 해제됨
     private CompositeDisposable mCompositeDisposable;
 
     private long[] selectedIds;
     private int selectedCnt;
 
     /**
-     * Memo Repository, Memo List View
-    */
+     *  injection은 따로 하지않고 Activity에서 생성할때 해주는걸로
+     * @param repository 데이터 불러올 repo
+     * @param view  보여줄 view
+     */
     MemoListPresenter(MemoRepository repository, MainContract.View view) {
         mRepo = repository;
         mView = view;
+        //first load 시 캐시 삭제후 reload
         isFirstLoad = true;
+        //넘겨받은 view에 자신을 presenter로 등록
         mView.setPresenter(this);
         mCompositeDisposable = new CompositeDisposable();
     }
@@ -82,6 +91,8 @@ public class MemoListPresenter implements MainContract.Presenter {
         );
     }
 
+    // longclick하면 select mode로 전환
+    // item select는 view에서 또 따로 처리
     @Override
     public void onLongClickMemo(Memo item) {
         mView.toggleSelectMode(true);
@@ -93,6 +104,7 @@ public class MemoListPresenter implements MainContract.Presenter {
         for(int i=0;i<selectedCnt;++i)
             if(selectedIds[i]==item.getId()){
                 selectedIds[i] = selectedIds[--selectedCnt];
+                return;
             }
         selectedIds[selectedCnt++] = item.getId();
     }
@@ -102,6 +114,27 @@ public class MemoListPresenter implements MainContract.Presenter {
     public void onClickSelectCancel() {
         selectedCnt = 0;
         mView.toggleSelectMode(false);
+    }
+
+    /**
+     *  repo에서 memo list를 일단 전부 불러 온 뒤, 그 중 query를 포함한 Memo만
+     *  view에 show한다
+     * @param query text is filtered by query
+     */
+    @Override
+    public void filter(String query) {
+        mCompositeDisposable.add(
+                mRepo.getMemoList()
+                        .subscribeOn(Schedulers.computation())
+                        .flatMap(Flowable::fromIterable)
+                        .filter(memo -> memo.getTitle().contains(query) || memo.getContent().contains(query))
+                        .toList()
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(memoList -> mView.showMemoList(memoList),
+                                throwable -> {
+                                    throwable.printStackTrace();
+                                })
+        );
     }
 
     @Override
