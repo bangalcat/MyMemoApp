@@ -129,13 +129,15 @@ public class MemoListFragment extends Fragment implements MainContract.View {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == AddEditMemoActivity.REQUEST_ADD_MEMO ||
                 requestCode == AddEditMemoActivity.REQUEST_EDIT_MEMO){
             if(resultCode == Activity.RESULT_OK){
                 mPresenter.loadData(true);
+            }else if(resultCode == Activity.RESULT_CANCELED){
+                mPresenter.loadData(true);
             }
         }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override

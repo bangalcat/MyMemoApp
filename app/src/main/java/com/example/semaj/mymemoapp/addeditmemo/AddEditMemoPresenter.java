@@ -66,6 +66,7 @@ public class AddEditMemoPresenter implements AddEditContract.Presenter {
 
     @Override
     public void subscribe() {
+        //mShouldLoadData와 isNewMemo는 사실 겹친다
         if(mShouldLoadData && !isNewMemo())
             mCompositeDisposable.add(
                     mRepo.getMemo(mId)
@@ -80,6 +81,8 @@ public class AddEditMemoPresenter implements AddEditContract.Presenter {
                                 mView.showMessage("Fail to Load Message");
                             })
             );
+        else
+            mView.toggleEditMode(true);
 
     }
 

@@ -44,10 +44,4 @@ public class AddEditMemoActivity extends AppCompatActivity {
         );
 
     }
-
-    @Override
-    public boolean onSupportNavigateUp() {
-        onBackPressed();
-        return true;
-    }
 }

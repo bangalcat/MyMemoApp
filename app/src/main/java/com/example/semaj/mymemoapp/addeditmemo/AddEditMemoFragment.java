@@ -101,6 +101,9 @@ public class AddEditMemoFragment extends Fragment implements AddEditContract.Vie
             case R.id.edit_menu_delete:
                 mPresenter.deleteMemo();
                 break;
+            case android.R.id.home:
+                showMemoList();
+                break;
         }
         return true;
     }
