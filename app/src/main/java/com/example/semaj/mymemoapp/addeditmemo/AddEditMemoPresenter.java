@@ -108,7 +108,10 @@ public class AddEditMemoPresenter implements AddEditContract.Presenter {
     //todo view에서 삭제되었습니다 메시지를 보여줘야 하는데?
     @Override
     public void deleteMemo() {
-        mRepo.deleteMemo(mId);
-        mView.showMemoList();
+        mCompositeDisposable.add(
+                mRepo.deleteMemo(mId)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(() -> mView.showMemoListAndDeleteMessage()));
     }
 }

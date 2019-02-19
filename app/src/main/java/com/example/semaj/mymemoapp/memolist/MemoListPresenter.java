@@ -1,11 +1,11 @@
 package com.example.semaj.mymemoapp.memolist;
 
-import android.text.TextUtils;
-
 import com.example.semaj.mymemoapp.data.Memo;
 import com.example.semaj.mymemoapp.data.MemoRepository;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.TreeSet;
 
 import io.reactivex.Flowable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -26,8 +26,8 @@ public class MemoListPresenter implements MainContract.Presenter {
     // clear해주면 알아서 구독 해제됨
     private CompositeDisposable mCompositeDisposable;
 
-    private long[] selectedIds;
-    private int selectedCnt;
+//    private long[] selectedIds;
+    private TreeSet<Long> selectedIds;
 
     /**
      *  injection은 따로 하지않고 Activity에서 생성할때 해주는걸로
@@ -57,8 +57,7 @@ public class MemoListPresenter implements MainContract.Presenter {
                     mRepo.getMemoList()
                             .doOnNext(memoList -> {
                                 Collections.sort(memoList, (o1, o2) -> o2.getDate().compareTo(o1.getDate()));
-                                selectedIds = new long[memoList.size()];
-                                selectedCnt = 0;
+                                selectedIds = new TreeSet<>();
                             })
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
@@ -83,15 +82,14 @@ public class MemoListPresenter implements MainContract.Presenter {
     // 선택된 메모 삭제 후 view에 message 출력, list 갱신
     @Override
     public void onClickDeleteSelectedMemos() {
-        int cnt = selectedCnt;
+        int cnt = selectedIds.size();
         mCompositeDisposable.add(
-                mRepo.deleteMemos(selectedIds, selectedCnt)
+                mRepo.deleteMemos(new ArrayList<Long>(selectedIds))
                         .subscribeOn(Schedulers.io())
                         .andThen(mRepo.getMemoList())
                         .doOnNext(memoList -> {
                             Collections.sort(memoList, (o1, o2) -> o2.getDate().compareTo(o1.getDate()));
-                            selectedIds = new long[memoList.size()];
-                            selectedCnt = 0;
+                            selectedIds = new TreeSet<>();
                         })
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(memoList ->{
@@ -117,18 +115,15 @@ public class MemoListPresenter implements MainContract.Presenter {
     //todo 구조 개선 : selectedIds를 TreeSet으로
     @Override
     public void selectOne(Memo item) {
-        for(int i=0;i<selectedCnt;++i)
-            if(selectedIds[i]==item.getId()){
-                selectedIds[i] = selectedIds[--selectedCnt];
-                return;
-            }
-        selectedIds[selectedCnt++] = item.getId();
+        if(selectedIds.contains(item.getId()))
+            selectedIds.remove(item.getId());
+        else
+            selectedIds.add(item.getId());
     }
 
     //모든 선택 취소 및 선택창 토글
     @Override
     public void onClickSelectCancel() {
-        selectedCnt = 0;
         mView.toggleSelectMode(false);
     }
 
@@ -161,7 +156,8 @@ public class MemoListPresenter implements MainContract.Presenter {
                 .subscribeOn(Schedulers.computation())
                 .flatMap(memoList -> Flowable.fromIterable(memoList))
                 .subscribe(item -> {
-
+                    //todo
+                    selectedIds.add(item.getId());
                 },Throwable::printStackTrace)
         );
     }

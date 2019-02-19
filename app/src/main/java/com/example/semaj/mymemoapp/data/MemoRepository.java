@@ -2,6 +2,7 @@ package com.example.semaj.mymemoapp.data;
 
 import android.support.annotation.NonNull;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -86,9 +87,11 @@ public class MemoRepository implements MemoDataSource {
     }
 
     @Override
-    public void deleteMemo(Long memoId) {
-        mLocalDataSource.deleteMemo(memoId);
-        cachedMemoListNotNull().remove(memoId);
+    public Completable deleteMemo(Long memoId) {
+        return mLocalDataSource.deleteMemo(memoId)
+                .doOnComplete(() ->
+                        cachedMemoListNotNull().remove(memoId)
+                );
     }
 
     @Override
@@ -98,13 +101,11 @@ public class MemoRepository implements MemoDataSource {
     }
 
     @Override
-    public Completable deleteMemos(long[] ids, int cnt) {
-        return mLocalDataSource.deleteMemos(ids, cnt)
-            .doOnComplete(() -> {
-                for (int i = 0; i < cnt; i++) {
-                    long id = ids[i];
-                    mCachedMemoList.remove(id);
-                }
-            });
+    public Completable deleteMemos(ArrayList<Long> ids) {
+        return mLocalDataSource.deleteMemos(ids)
+                .doOnComplete(() -> {
+                    for(Long id : ids)
+                        mCachedMemoList.remove(id);
+                });
     }
 }

@@ -130,10 +130,11 @@ public class LocalMemoDataSource implements MemoDataSource {
     }
 
     @Override
-    public void deleteMemo(Long memoId) {
+    public Completable deleteMemo(Long memoId) {
         String selection = MemoDbContract.Entry.ENTRY_ID + " LIKE ?";
         String[] args = {String.valueOf(memoId)};
         int deletedRows = mDb.delete(MemoDbContract.Entry.TABLE_NAME, selection, args);
+        return Completable.complete();
     }
 
     @Override
@@ -143,13 +144,11 @@ public class LocalMemoDataSource implements MemoDataSource {
     }
 
     @Override
-    public Completable deleteMemos(long[] ids, int cnt) {
-        if(cnt <= 0) return Completable.error(IndexOutOfBoundsException::new);
-
-        String selection = MemoDbContract.Entry.ENTRY_ID + " IN ("+new String(new char[cnt-1]).replace("\0","?,")+"?)";
-        String[] args = new String[cnt];
-        for(int i=0;i<cnt;++i)
-            args[i] = String.valueOf(ids[i]);
+    public Completable deleteMemos(ArrayList<Long> ids) {
+        String selection = MemoDbContract.Entry.ENTRY_ID + " IN ("+new String(new char[ids.size()-1]).replace("\0","?,")+"?)";
+        String[] args = new String[ids.size()];
+        for(int i=0;i<ids.size();++i)
+            args[i] = String.valueOf(ids.get(i));
         int deleteRows = mDb.delete(
             MemoDbContract.Entry.TABLE_NAME,
             selection,

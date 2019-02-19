@@ -38,6 +38,7 @@ import java.util.List;
 public class MemoListFragment extends Fragment implements MainContract.View {
 
     private MainContract.Presenter mPresenter;
+    public static final int RESULT_CODE_DELETE = 0x2;
 
     //components
     private FloatingActionButton mAddBtn;
@@ -135,6 +136,11 @@ public class MemoListFragment extends Fragment implements MainContract.View {
             if(resultCode == Activity.RESULT_OK){
                 mPresenter.loadData(true);
             }else if(resultCode == Activity.RESULT_CANCELED){
+                //원래 false여야 하지만 지금 구조로 하면 그냥 true
+                mPresenter.loadData(true);
+            }else if(resultCode == RESULT_CODE_DELETE){
+                //메시지 삭제 후 진입
+                showMessage("메세지가 삭제되었습니다");
                 mPresenter.loadData(true);
             }
         }

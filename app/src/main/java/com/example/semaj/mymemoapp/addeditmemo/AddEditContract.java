@@ -14,6 +14,8 @@ public interface AddEditContract {
         void toggleEditMode(boolean editable);
 
         void showMessage(String message);
+
+        void showMemoListAndDeleteMessage();
     }
     interface Presenter extends BasePresenter{
 

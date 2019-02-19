@@ -2,6 +2,7 @@ package com.example.semaj.mymemoapp.data;
 
 import android.support.annotation.NonNull;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.Completable;
@@ -27,9 +28,9 @@ public interface MemoDataSource {
 
     Single<Memo> saveMemo(Memo memo);
 
-    void deleteMemo(Long memoId);
+    Completable deleteMemo(Long memoId);
 
     Completable deleteAllMemo();
 
-    Completable deleteMemos(long[] ids, int cnt);
+    Completable deleteMemos(ArrayList<Long> ids);
 }

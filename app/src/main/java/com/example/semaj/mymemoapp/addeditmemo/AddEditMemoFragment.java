@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 import com.example.semaj.mymemoapp.R;
 import com.example.semaj.mymemoapp.Utils;
+import com.example.semaj.mymemoapp.memolist.MemoListFragment;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -155,6 +156,12 @@ public class AddEditMemoFragment extends Fragment implements AddEditContract.Vie
     public void showMessage(String message) {
         Toast.makeText(getContext(),message, Toast.LENGTH_SHORT).show();
 //        Snackbar.make(getView(), message, Snackbar.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void showMemoListAndDeleteMessage() {
+        getActivity().setResult(MemoListFragment.RESULT_CODE_DELETE);
+        getActivity().finish();
     }
 
     @Override
