@@ -13,6 +13,8 @@ import com.example.semaj.mymemoapp.data.MemoDataSource;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import io.reactivex.Completable;
@@ -64,11 +66,15 @@ public class LocalMemoDataSource implements MemoDataSource {
             String title = cursor.getString(cursor.getColumnIndexOrThrow(MemoDbContract.Entry.COLUMN_NAME_TITLE));
             String content = cursor.getString(cursor.getColumnIndexOrThrow(MemoDbContract.Entry.COLUMN_NAME_CONTENT));
             String date = cursor.getString(cursor.getColumnIndexOrThrow(MemoDbContract.Entry.COLUMN_NAME_DATE));
+            Date parsedDate;
             try {
-                memoList.add(new Memo(itemId, title, content, Utils.parseDate(date)));
+                parsedDate = Utils.parseDate(date);
             } catch (ParseException e) {
                 e.printStackTrace();
+                parsedDate = new Date();
             }
+            Memo memo = new Memo(itemId, title, content, parsedDate);
+            memoList.add(memo);
         }
         cursor.close();
         return Flowable.fromIterable(memoList)
@@ -101,13 +107,14 @@ public class LocalMemoDataSource implements MemoDataSource {
             String content = cursor.getString(cursor.getColumnIndexOrThrow(MemoDbContract.Entry.COLUMN_NAME_CONTENT));
             String date = cursor.getString(cursor.getColumnIndexOrThrow(MemoDbContract.Entry.COLUMN_NAME_DATE));
 
-            Memo memo;
+            Date parsedDate;
             try {
-                memo = new Memo(itemId, title, content, Utils.parseDate(date));
+                parsedDate = Utils.parseDate(date);
             } catch (ParseException e) {
                 e.printStackTrace();
-                return Flowable.error(Exception::new);
+                parsedDate = new Date();
             }
+            Memo memo = new Memo(itemId, title, content, parsedDate);
 
             cursor.close();
             return Flowable.just(memo);

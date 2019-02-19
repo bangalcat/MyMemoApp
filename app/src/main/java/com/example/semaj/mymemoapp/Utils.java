@@ -1,23 +1,27 @@
 package com.example.semaj.mymemoapp;
 
 import android.app.Activity;
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Toast;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 public class Utils {
+    //그냥 시간을 밀리세컨으로 얻은것을 key로
     public static long createKey(){
         Calendar c = Calendar.getInstance();
         return c.getTimeInMillis();
     }
-    static SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd hh:mm");
+    static SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd hh:mm",Locale.getDefault());
     public static String getDateString(Date date){
         return format.format(date);
     }
@@ -38,5 +42,9 @@ public class Utils {
             view = new View(activity);
         }
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
+    public static void showToastMessage(Activity activity, String message){
+        Toast.makeText(activity, message, Toast.LENGTH_SHORT).show();
     }
 }
