@@ -38,8 +38,4 @@ public class MainActivity extends AppCompatActivity {
         mAddBtn = findViewById(R.id.fab_add);
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-    }
 }

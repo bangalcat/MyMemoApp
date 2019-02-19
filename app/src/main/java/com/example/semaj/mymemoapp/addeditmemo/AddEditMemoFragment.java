@@ -15,10 +15,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.semaj.mymemoapp.R;
 import com.example.semaj.mymemoapp.Utils;
-import com.example.semaj.mymemoapp.memolist.MemoListFragment;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -26,15 +26,16 @@ import com.example.semaj.mymemoapp.memolist.MemoListFragment;
  * create an instance of this fragment.
  */
 public class AddEditMemoFragment extends Fragment implements AddEditContract.View {
-    // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     public static final String ARG_MEMO_ID = "memo_id";
 
-    private EditText mTitle;
-    private EditText mContent;
+    //components
+    private EditText mTitle; //제목입력란
+    private EditText mContent; //내용입력란
+    private TextView mSaveBtn; // 저장 버튼 - 현재 우측상단
+    private FloatingActionButton mEditBtn; // 편집버튼 - float button
+
     private AddEditContract.Presenter mPresenter;
-    private TextView mSaveBtn;
-    private FloatingActionButton mEditBtn;
 
     public AddEditMemoFragment() {
         // Required empty public constructor
@@ -46,7 +47,6 @@ public class AddEditMemoFragment extends Fragment implements AddEditContract.Vie
      *
      * @return A new instance of fragment AddEditMemoFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static AddEditMemoFragment newInstance(long memoId) {
         AddEditMemoFragment fragment = new AddEditMemoFragment();
         Bundle args = new Bundle();
@@ -85,11 +85,8 @@ public class AddEditMemoFragment extends Fragment implements AddEditContract.Vie
         mEditBtn.setOnClickListener(v -> mPresenter.onClickEditMode());
 
         mSaveBtn.setOnClickListener(v -> {
-            if(mTitle.isFocusable()) {
-                mPresenter.saveMemo(mTitle.getText().toString(), mContent.getText().toString());
-                Utils.hideKeyboard(getActivity());
-            }else
-                mPresenter.onClickEditMode();
+            mPresenter.saveMemo(mTitle.getText().toString(), mContent.getText().toString());
+            Utils.hideKeyboard(getActivity());
         });
 
         return root;
@@ -98,10 +95,10 @@ public class AddEditMemoFragment extends Fragment implements AddEditContract.Vie
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
-            case R.id.edit_menu_delete:
+            case R.id.edit_menu_delete: //현재 메모 삭제
                 mPresenter.deleteMemo();
                 break;
-            case android.R.id.home:
+            case android.R.id.home: // 뒤로가기
                 showMemoList();
                 break;
         }
@@ -115,6 +112,7 @@ public class AddEditMemoFragment extends Fragment implements AddEditContract.Vie
         super.onCreateOptionsMenu(menu, inflater);
     }
 
+    //메모 리스트 화면으로 돌아가기
     @Override
     public void showMemoList() {
         getActivity().setResult(Activity.RESULT_OK);
@@ -146,6 +144,7 @@ public class AddEditMemoFragment extends Fragment implements AddEditContract.Vie
             mEditBtn.hide();
         } else {
             mSaveBtn.setVisibility(View.GONE);
+            // 입력란 클릭해도 편집모드로 들어가도록
             mTitle.setOnClickListener(v -> mPresenter.onClickEditMode());
             mContent.setOnClickListener(v -> mPresenter.onClickEditMode());
             mEditBtn.show();
@@ -154,7 +153,8 @@ public class AddEditMemoFragment extends Fragment implements AddEditContract.Vie
 
     @Override
     public void showMessage(String message) {
-        Snackbar.make(getView(), message, Snackbar.LENGTH_SHORT).show();
+        Toast.makeText(getContext(),message, Toast.LENGTH_SHORT).show();
+//        Snackbar.make(getView(), message, Snackbar.LENGTH_SHORT).show();
     }
 
     @Override

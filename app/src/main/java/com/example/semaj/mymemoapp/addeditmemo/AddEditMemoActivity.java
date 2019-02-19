@@ -21,14 +21,17 @@ public class AddEditMemoActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_edit_memo);
 
+        ////뒤로가기 버튼 만들기
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ActionBar ab = getSupportActionBar();
         ab.setDisplayHomeAsUpEnabled(true);
         ab.setDisplayShowHomeEnabled(true);
+        //////
 
         AddEditMemoFragment fragment = (AddEditMemoFragment) getSupportFragmentManager().findFragmentById(R.id.content_frame);
 
+        //memo id가 있으면 기존 메모, 없으면 새 메모
         long memoId = getIntent().getLongExtra(AddEditMemoFragment.ARG_MEMO_ID, -1);
 
         if(fragment == null){

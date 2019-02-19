@@ -12,10 +12,14 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
 
+/**
+ * MemoListFragment에 대한 Presenter 구현체
+ */
 public class MemoListPresenter implements MainContract.Presenter {
 
     private MemoRepository mRepo;
     private MainContract.View mView;
+
     private boolean isFirstLoad;
 
     // disposable을 관리
@@ -42,6 +46,12 @@ public class MemoListPresenter implements MainContract.Presenter {
 
     @Override
     public void loadData(boolean forceUpdate) {
+        //forceUpdate는 cache는 그대로인데 DB가 갱신되었을 때에 필요
+        //현재 MemoRepository에 cache는 DB와 똑같이 갱신되므로 refresh 기능이 없음
+        // 따라서 forceUpdate 불필요..
+        // 사실은 cache가 변했을 때도 View에 넘겨주기 위해 forceUpdate해주어야한다
+        // 결국 현재 forceUpdate는 불필요한 변수 - 무조건 true
+        // MemoRepository에 refresh 기능 추가하면 바꾸도록
         if(forceUpdate)
             mCompositeDisposable.add(
                     mRepo.getMemoList()
@@ -53,8 +63,8 @@ public class MemoListPresenter implements MainContract.Presenter {
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(memoList -> {
-                                    mView.showMemoList(memoList);
-                                },
+                                        mView.showMemoList(memoList);
+                                    },
                                     throwable -> mView.showMessage("메모 목록을 불러오는데 실패하였습니다."))
             );
         isFirstLoad = false;
@@ -70,17 +80,22 @@ public class MemoListPresenter implements MainContract.Presenter {
         mView.showMemoDetail(item.getId());
     }
 
+    // 선택된 메모 삭제 후 view에 message 출력, list 갱신
     @Override
     public void onClickDeleteSelectedMemos() {
         int cnt = selectedCnt;
         mCompositeDisposable.add(
                 mRepo.deleteMemos(selectedIds, selectedCnt)
                         .subscribeOn(Schedulers.io())
-                        .doOnComplete(() -> {
-                            loadData(true);
+                        .andThen(mRepo.getMemoList())
+                        .doOnNext(memoList -> {
+                            Collections.sort(memoList, (o1, o2) -> o2.getDate().compareTo(o1.getDate()));
+                            selectedIds = new long[memoList.size()];
+                            selectedCnt = 0;
                         })
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(() ->{
+                        .subscribe(memoList ->{
+                            mView.showMemoList(memoList);
                             mView.showMessage("선택된 "+cnt+"개 메모가 삭제되었습니다");
                         },throwable -> {
                             if(throwable instanceof IndexOutOfBoundsException)
@@ -99,6 +114,7 @@ public class MemoListPresenter implements MainContract.Presenter {
     }
 
     //선택모드에서 아이템 하나 선택
+    //todo 구조 개선 : selectedIds를 TreeSet으로
     @Override
     public void selectOne(Memo item) {
         for(int i=0;i<selectedCnt;++i)
@@ -126,14 +142,27 @@ public class MemoListPresenter implements MainContract.Presenter {
         mCompositeDisposable.add(
                 mRepo.getMemoList()
                         .subscribeOn(Schedulers.computation())
-                        .flatMap(Flowable::fromIterable)
-                        .filter(memo -> memo.getTitle().contains(query) || memo.getContent().contains(query))
-                        .toList()
+                        .flatMap(Flowable::fromIterable) //Flowable<List<Memo>>를 Flowable<Memo>로 개별 방출하도록
+                        .filter(memo -> memo.getTitle().contains(query) || memo.getContent().contains(query)) // 개별 방출한것중 query포함한것만 필터링
+                        .toList() // 다시 Flowable<List<>>로
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(memoList -> mView.showMemoList(memoList),
                                 throwable -> {
                                     throwable.printStackTrace();
                                 })
+        );
+    }
+
+    @Override
+    public void selectAll() {
+        //add memo to ids
+        mCompositeDisposable.add(
+                mRepo.getMemoList()
+                .subscribeOn(Schedulers.computation())
+                .flatMap(memoList -> Flowable.fromIterable(memoList))
+                .subscribe(item -> {
+
+                },Throwable::printStackTrace)
         );
     }
 

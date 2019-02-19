@@ -14,6 +14,7 @@ public class Memo {
     }
 
     public Memo(String title, String content, Date date){
+        // 새 메모면 time 기반 key 자동 생성
         this(Utils.createKey(), title, content, date);
     }
 

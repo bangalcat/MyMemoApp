@@ -38,13 +38,21 @@ import java.util.List;
 public class MemoListFragment extends Fragment implements MainContract.View {
 
     private MainContract.Presenter mPresenter;
-    public static final int DELETE = 0x3;
 
     //components
     private FloatingActionButton mAddBtn;
     private RecyclerView mRcvMemoList;
-    private TextView mBackBtn;
+    private TextView mCancelBtn;
 
+    //menu items
+    private MenuItem mDeleteMenuItem;
+    private MenuItem mSelectMenuItem;
+    private MenuItem mSelectAllMenuItem;
+    private MenuItem mSearchMenuItem;
+    private SearchView mSearchView;
+
+    private MemoListAdapter mAdapter;
+    // 선택 모드 아닐때 click listener
     private ItemClickListener<Memo> mClickListener = new ItemClickListener<Memo>() {
         @Override
         public void onClick(Memo item) {
@@ -57,8 +65,7 @@ public class MemoListFragment extends Fragment implements MainContract.View {
             mPresenter.selectOne(item);
         }
     };
-
-    private MemoListAdapter mAdapter;
+    // 선택 모드일때 click listener
     private ItemClickListener<Memo> mSelectListener = new ItemClickListener<Memo>() {
         @Override
         public void onClick(Memo item) {
@@ -70,11 +77,6 @@ public class MemoListFragment extends Fragment implements MainContract.View {
             //do nothing
         }
     };
-    private MenuItem mDeleteMenuItem;
-    private MenuItem mSelectMenuItem;
-    private MenuItem mSelectAllMenuItem;
-    private MenuItem mSearchMenuItem;
-    private SearchView mSearchView;
 
     public MemoListFragment() {
         // Required empty public constructor
@@ -86,7 +88,6 @@ public class MemoListFragment extends Fragment implements MainContract.View {
      *
      * @return A new instance of fragment MemoListFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static MemoListFragment newInstance() {
         return new MemoListFragment();
     }
@@ -109,10 +110,10 @@ public class MemoListFragment extends Fragment implements MainContract.View {
 
         mAddBtn = getActivity().findViewById(R.id.fab_add);
         mAddBtn.setOnClickListener(v -> mPresenter.addNewMemo());
-        mBackBtn = root.findViewById(R.id.toolbar_left);
-        mBackBtn.setVisibility(View.GONE);
-        mBackBtn.setText("Cancel");
-        mBackBtn.setOnClickListener(view -> {
+        mCancelBtn = root.findViewById(R.id.toolbar_left);
+        mCancelBtn.setVisibility(View.GONE);
+        mCancelBtn.setText("Cancel");
+        mCancelBtn.setOnClickListener(view -> {
             mPresenter.onClickSelectCancel();
         });
         setHasOptionsMenu(true);
@@ -144,6 +145,7 @@ public class MemoListFragment extends Fragment implements MainContract.View {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.main_menu, menu);
         // menu item - select mode에서 보여주는 메뉴가 다름
+        // 멤버로 가지고 있다가 visibility set
         mSelectMenuItem = menu.getItem(0);
         mSearchMenuItem = menu.getItem(1);
         mDeleteMenuItem = menu.getItem(2);
@@ -158,6 +160,7 @@ public class MemoListFragment extends Fragment implements MainContract.View {
         if(mSearchView != null){
             mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
             mSearchView.setQueryHint("search text");
+            //검색창 텍스트 입력을 자동 인식 - 매번 쿼리 전달
             mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 @Override
                 public boolean onQueryTextSubmit(String s) {
@@ -179,16 +182,21 @@ public class MemoListFragment extends Fragment implements MainContract.View {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
-            case R.id.menu_delete:
+            case R.id.menu_delete: //선택 메모 삭제
                 mPresenter.onClickDeleteSelectedMemos();
                 break;
-            case R.id.menu_select:
-                toggleSelectMode(true);
+            case R.id.menu_select: // 선택 모드
+                toggleSelectMode(true); //딱히 presenter 호출 안해도 될듯?
                 break;
-            case R.id.menu_search:
-                toggleSelectMode(false);
+            case R.id.menu_search: // 검색 버튼 - 검색은 searchView에 로직
+                toggleSelectMode(false);  //검색 시 다중선택모드 취소
                 break;
             case R.id.menu_select_all:
+                //TODO how can I implement SELECT ALL?
+                // Need to change process
+                mAdapter.setAllItemSelect(true);
+                mAdapter.notifyItemRangeChanged(0,mAdapter.getItemCount());
+                mPresenter.selectAll();
                 break;
         }
         return true;
@@ -214,6 +222,7 @@ public class MemoListFragment extends Fragment implements MainContract.View {
     @Override
     public void showMemoDetail(long id) {
         //create new activity
+        //add memo와 같은 activity 호출하지만, intent extra에 memo의 id를 넣음
         Intent intent = new Intent(getContext(), AddEditMemoActivity.class);
         intent.putExtra(AddEditMemoFragment.ARG_MEMO_ID,id);
         startActivityForResult(intent, AddEditMemoActivity.REQUEST_EDIT_MEMO);
@@ -236,23 +245,28 @@ public class MemoListFragment extends Fragment implements MainContract.View {
         Snackbar.make(getView(), message, Snackbar.LENGTH_SHORT).show();
     }
 
+    // 다중 선택 모드 toggle
+    // 메뉴 item 보여지는게 다름
+    // Adapter의 select mode를 바꾸고 view를 다시그리도록 notifyDatasetChanged 호출
     @Override
     public void toggleSelectMode(boolean selectMode) {
         mAdapter.setSelectable(selectMode);
         mAdapter.notifyDataSetChanged();
-        //todo select mode back button add
-        mBackBtn.setVisibility(selectMode?View.VISIBLE:View.GONE);
+        //다중 선택 모드에서 Cancel 버튼이 툴바 왼쪽에 나올 수 있도록
+        mCancelBtn.setVisibility(selectMode?View.VISIBLE:View.GONE);
         if(selectMode) {
             mSelectAllMenuItem.setVisible(true);
             mDeleteMenuItem.setVisible(true);
             mSelectMenuItem.setVisible(false);
             mSearchMenuItem.setVisible(false);
+            mAddBtn.hide();
         }
         else {
             mSelectAllMenuItem.setVisible(false);
             mDeleteMenuItem.setVisible(false);
             mSelectMenuItem.setVisible(true);
             mSearchMenuItem.setVisible(true);
+            mAddBtn.show();
         }
     }
 }

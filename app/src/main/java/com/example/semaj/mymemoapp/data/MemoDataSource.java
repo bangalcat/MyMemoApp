@@ -9,6 +9,7 @@ import io.reactivex.Flowable;
 import io.reactivex.Single;
 
 public interface MemoDataSource {
+    //Rxjava로 대체
     interface DataListCallback{
         void onListLoaded(List<Memo> memoList);
 
@@ -19,6 +20,7 @@ public interface MemoDataSource {
 
         void onError();
     }
+
     Flowable<List<Memo>> getMemoList();
 
     Flowable<Memo> getMemo(@NonNull Long memoId);

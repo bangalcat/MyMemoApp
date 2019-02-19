@@ -3,6 +3,7 @@ package com.example.semaj.mymemoapp.addeditmemo;
 import android.text.TextUtils;
 
 import com.example.semaj.mymemoapp.data.Memo;
+import com.example.semaj.mymemoapp.data.MemoDataSource;
 import com.example.semaj.mymemoapp.data.MemoRepository;
 
 import java.util.Calendar;
@@ -14,7 +15,7 @@ import io.reactivex.schedulers.Schedulers;
 public class AddEditMemoPresenter implements AddEditContract.Presenter {
 
     private long mId;
-    private MemoRepository mRepo;
+    private MemoDataSource mRepo;
     private AddEditContract.View mView;
     private boolean mShouldLoadData;
     private CompositeDisposable mCompositeDisposable;
@@ -24,25 +25,28 @@ public class AddEditMemoPresenter implements AddEditContract.Presenter {
         mRepo = repo;
         mView = view;
         mView.setPresenter(this);
-        mShouldLoadData = shouldLoadData;
+        mShouldLoadData = shouldLoadData; // 현재 사실 mId로만 검사해서 불필요
         mCompositeDisposable = new CompositeDisposable();
     }
 
+    //메모 저장
     @Override
     public void saveMemo(String title, String content) {
         Memo memo;
+        //제목은 없어도 되지만 내용은 있어야됨
         if(TextUtils.isEmpty(content)){
             mView.showMessage("내용을 입력해야 합니다");
             return;
         }
         boolean isNew = isNewMemo();
         if(isNew){
+            //key는 생성됨
             memo = new Memo(title,content, Calendar.getInstance().getTime());
         }else{
             memo = new Memo(mId,title,content, Calendar.getInstance().getTime());
         }
         mCompositeDisposable.add(
-                mRepo.saveMemo(memo)
+                mRepo.saveMemo(memo)//db저장
                         .subscribeOn(Schedulers.io())
                         //this memo is saved, so state is change
                         .doOnSuccess(memo1 -> mId = memo1.getId())
@@ -54,7 +58,7 @@ public class AddEditMemoPresenter implements AddEditContract.Presenter {
                             }else
                                 mView.showMessage("메모가 수정되었습니다");
                         }, throwable -> {
-                            mView.showMessage("Error : Save Fail");
+                            mView.showMessage("Error : Fail to Save Memo");
                         }));
     }
 
@@ -100,6 +104,8 @@ public class AddEditMemoPresenter implements AddEditContract.Presenter {
         return mId == -1;
     }
 
+    //메모 삭제하고 리스트 화면으로
+    //todo view에서 삭제되었습니다 메시지를 보여줘야 하는데?
     @Override
     public void deleteMemo() {
         mRepo.deleteMemo(mId);

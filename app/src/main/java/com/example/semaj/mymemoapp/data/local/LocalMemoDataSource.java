@@ -18,13 +18,13 @@ import java.util.List;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
-
+// Dao로 구현할까 했지만 그냥 SqlLiteOpenHelper 방식
 //Singleton
 public class LocalMemoDataSource implements MemoDataSource {
 
     private static LocalMemoDataSource INSTANCE = null;
 
-    private MemoDbHelper mDbHelper;
+    private MemoDbHelper mDbHelper; //db 헬퍼
 
     private SQLiteDatabase mDb;
 
@@ -48,7 +48,6 @@ public class LocalMemoDataSource implements MemoDataSource {
                 MemoDbContract.Entry.COLUMN_NAME_CONTENT,
                 MemoDbContract.Entry.COLUMN_NAME_DATE,
         };
-        String selection = "*";
 
         String sortOrder = MemoDbContract.Entry.COLUMN_NAME_DATE + " DESC";
         Cursor cursor = mDb.query(
@@ -102,7 +101,7 @@ public class LocalMemoDataSource implements MemoDataSource {
             String content = cursor.getString(cursor.getColumnIndexOrThrow(MemoDbContract.Entry.COLUMN_NAME_CONTENT));
             String date = cursor.getString(cursor.getColumnIndexOrThrow(MemoDbContract.Entry.COLUMN_NAME_DATE));
 
-            Memo memo = null;
+            Memo memo;
             try {
                 memo = new Memo(itemId, title, content, Utils.parseDate(date));
             } catch (ParseException e) {

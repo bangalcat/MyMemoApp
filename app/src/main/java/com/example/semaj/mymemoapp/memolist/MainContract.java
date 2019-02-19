@@ -37,5 +37,7 @@ public interface MainContract {
         void onClickSelectCancel();
 
         void filter(String s);
+
+        void selectAll();
     }
 }

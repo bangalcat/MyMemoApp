@@ -9,7 +9,6 @@
     android:orientation="vertical"
     tools:context=".addeditmemo.AddEditMemoFragment">
 
-    <!-- TODO: Update blank fragment layout -->
 
     <EditText
         android:id="@+id/etTitle"
