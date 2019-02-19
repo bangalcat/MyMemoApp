@@ -68,7 +68,7 @@ public class MemoListAdapter extends ListAdapter<Memo, MemoListAdapter.MemoViewH
     @NonNull
     @Override
     public MemoViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_memo, viewGroup, false);
+        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_memo_card, viewGroup, false);
         return new MemoViewHolder(view);
     }
 
@@ -108,7 +108,7 @@ public class MemoListAdapter extends ListAdapter<Memo, MemoListAdapter.MemoViewH
         public void bind(Memo memo, ItemClickListener<Memo> clickListener, boolean selectable, int pos){
             tvTitle.setText(memo.getTitle());
             tvContent.setText(memo.getContent());
-            tvDate.setText(Utils.getDateString(memo.getDate()));
+            tvDate.setText(Utils.getDateString(memo.getDate()).substring(5));
             if(selectable) {
                 ckBox.setVisibility(View.VISIBLE);
             }else {

@@ -12,6 +12,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -106,7 +107,10 @@ public class MemoListFragment extends Fragment implements MainContract.View {
         View root =  inflater.inflate(R.layout.fragment_memo_list, container, false);
 
         mRcvMemoList = root.findViewById(R.id.rcv_memo_list);
-        mRcvMemoList.setLayoutManager(new LinearLayoutManager(getContext()));
+//        mRcvMemoList.setLayoutManager(new LinearLayoutManager(getContext()));
+        StaggeredGridLayoutManager _sglm = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+        _sglm.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
+        mRcvMemoList.setLayoutManager(_sglm);
         mRcvMemoList.setAdapter(mAdapter);
 
         mAddBtn = getActivity().findViewById(R.id.fab_add);
@@ -198,7 +202,6 @@ public class MemoListFragment extends Fragment implements MainContract.View {
                 toggleSelectMode(false);  //검색 시 다중선택모드 취소
                 break;
             case R.id.menu_select_all:
-                //TODO how can I implement SELECT ALL?
                 // Need to change process
                 mAdapter.setAllItemSelect(true);
                 mAdapter.notifyItemRangeChanged(0,mAdapter.getItemCount());

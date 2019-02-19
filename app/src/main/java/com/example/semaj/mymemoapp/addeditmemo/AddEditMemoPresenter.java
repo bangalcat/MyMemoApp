@@ -105,7 +105,6 @@ public class AddEditMemoPresenter implements AddEditContract.Presenter {
     }
 
     //메모 삭제하고 리스트 화면으로
-    //todo view에서 삭제되었습니다 메시지를 보여줘야 하는데?
     @Override
     public void deleteMemo() {
         mCompositeDisposable.add(

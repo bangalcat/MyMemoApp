@@ -112,7 +112,6 @@ public class MemoListPresenter implements MainContract.Presenter {
     }
 
     //선택모드에서 아이템 하나 선택
-    //todo 구조 개선 : selectedIds를 TreeSet으로
     @Override
     public void selectOne(Memo item) {
         if(selectedIds.contains(item.getId()))
@@ -156,7 +155,6 @@ public class MemoListPresenter implements MainContract.Presenter {
                 .subscribeOn(Schedulers.computation())
                 .flatMap(memoList -> Flowable.fromIterable(memoList))
                 .subscribe(item -> {
-                    //todo
                     selectedIds.add(item.getId());
                 },Throwable::printStackTrace)
         );
