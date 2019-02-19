@@ -2,6 +2,7 @@ package com.example.semaj.mymemoapp.addeditmemo;
 
 import android.text.TextUtils;
 
+import com.example.semaj.mymemoapp.Utils;
 import com.example.semaj.mymemoapp.data.Memo;
 import com.example.semaj.mymemoapp.data.MemoDataSource;
 import com.example.semaj.mymemoapp.data.MemoRepository;
@@ -53,6 +54,7 @@ public class AddEditMemoPresenter implements AddEditContract.Presenter {
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(memo1 -> {
                             mView.toggleEditMode(false);
+                            mView.showDate(Utils.getDateString(memo.getDate())+"에 마지막으로 수정됨");
                             if(isNew) {
                                 mView.showMessage("새 메모가 저장되었습니다");
                             }else
@@ -98,6 +100,7 @@ public class AddEditMemoPresenter implements AddEditContract.Presenter {
     private void showMemo(Memo memo){
         mView.setTitle(memo.getTitle());
         mView.setContent(memo.getContent());
+        mView.showDate(Utils.getDateString(memo.getDate())+"에 마지막으로 수정됨");
     }
 
     public boolean isNewMemo(){

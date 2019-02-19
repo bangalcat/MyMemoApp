@@ -25,6 +25,15 @@
         android:paddingLeft="8dp"
         android:textSize="20sp" />
 
+    <TextView
+        android:id="@+id/tv_saved_date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="8dp"
+        android:gravity="end"
+        android:textSize="12sp"
+        tools:text="2016. 8. 4에 저장됨" />
+
     <EditText
         android:id="@+id/etContent"
         android:layout_width="match_parent"

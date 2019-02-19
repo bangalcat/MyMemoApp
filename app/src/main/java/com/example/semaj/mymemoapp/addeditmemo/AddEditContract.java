@@ -16,6 +16,8 @@ public interface AddEditContract {
         void showMessage(String message);
 
         void showMemoListAndDeleteMessage();
+
+        void showDate(String date);
     }
     interface Presenter extends BasePresenter{
 

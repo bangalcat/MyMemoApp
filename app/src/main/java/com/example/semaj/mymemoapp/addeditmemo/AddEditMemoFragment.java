@@ -37,6 +37,7 @@ public class AddEditMemoFragment extends Fragment implements AddEditContract.Vie
     private FloatingActionButton mEditBtn; // 편집버튼 - float button
 
     private AddEditContract.Presenter mPresenter;
+    private TextView mSavedDate;
 
     public AddEditMemoFragment() {
         // Required empty public constructor
@@ -84,6 +85,7 @@ public class AddEditMemoFragment extends Fragment implements AddEditContract.Vie
         setHasOptionsMenu(true);
         mEditBtn = getActivity().findViewById(R.id.fab_edit);
         mEditBtn.setOnClickListener(v -> mPresenter.onClickEditMode());
+        mSavedDate = root.findViewById(R.id.tv_saved_date);
 
         mSaveBtn.setOnClickListener(v -> {
             mPresenter.saveMemo(mTitle.getText().toString(), mContent.getText().toString());
@@ -162,6 +164,11 @@ public class AddEditMemoFragment extends Fragment implements AddEditContract.Vie
     public void showMemoListAndDeleteMessage() {
         getActivity().setResult(MemoListFragment.RESULT_CODE_DELETE);
         getActivity().finish();
+    }
+
+    @Override
+    public void showDate(String date) {
+        mSavedDate.setText(date);
     }
 
     @Override
