@@ -62,6 +62,7 @@ public class MemoListPresenter implements MainContract.Presenter {
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(memoList -> {
                                     mView.showMemoList(memoList);
+                                    mView.scrollUp();
                                 },
                                 throwable -> mView.showMessage("메모 목록을 불러오는데 실패하였습니다."))
         );
@@ -97,6 +98,7 @@ public class MemoListPresenter implements MainContract.Presenter {
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(memoList ->{
                             mView.showMemoList(memoList);
+                            mView.scrollUp();
                             mView.showMessage("선택된 "+cnt+"개 메모가 삭제되었습니다");
                         },throwable -> {
                             mView.showMessage("메시지 삭제 오류");

@@ -58,4 +58,12 @@ public class Utils {
                 .setCancelable(true)
                 .setNegativeButton("저장하지 않음", negativeListener);
     }
+    public static AlertDialog.Builder getDeleteConfirmDialog(Context context, String title, String message, DialogInterface.OnClickListener confirmListener){
+        return new AlertDialog.Builder(context)
+            .setTitle(title)
+            .setMessage(message)
+            .setCancelable(true)
+            .setPositiveButton("삭제",confirmListener)
+            .setNegativeButton("취소",(dialogInterface, i) -> dialogInterface.cancel());
+    }
 }

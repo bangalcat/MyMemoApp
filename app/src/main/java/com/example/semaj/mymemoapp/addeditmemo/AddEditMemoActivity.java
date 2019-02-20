@@ -42,8 +42,7 @@ public class AddEditMemoActivity extends AppCompatActivity {
         mPresenter = new AddEditMemoPresenter(
                 memoId,
                 MemoRepository.getInstance(LocalMemoDataSource.getInstance(getApplicationContext())),
-                fragment,
-                memoId != -1
+                fragment
         );
     }
 

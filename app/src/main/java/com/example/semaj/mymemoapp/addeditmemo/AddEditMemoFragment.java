@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -41,6 +40,8 @@ public class AddEditMemoFragment extends Fragment implements AddEditContract.Vie
 
     private AddEditContract.Presenter mPresenter;
     private TextView mSavedDate;
+
+    private SimpleTextChangeListener mTextChangeListener;
 
     public AddEditMemoFragment() {
         // Required empty public constructor
@@ -90,53 +91,37 @@ public class AddEditMemoFragment extends Fragment implements AddEditContract.Vie
         mEditBtn.setOnClickListener(v -> mPresenter.onClickEditMode());
         mSavedDate = root.findViewById(R.id.tv_saved_date);
 
+        mSaveBtn.setVisibility(View.VISIBLE);
+        mSaveBtn.setText("저장");
         mSaveBtn.setOnClickListener(v -> {
-            mPresenter.saveMemo(mTitle.getText().toString(), mContent.getText().toString());
+            mPresenter.saveMemo(mTitle.getText().toString(), mContent.getText().toString(), false);
             Utils.hideKeyboard(getActivity());
         });
-        mTitle.addTextChangedListener(new TextWatcher() {
+        mTextChangeListener = new SimpleTextChangeListener() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 mPresenter.setChanged(true);
             }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        });
-        mContent.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                mPresenter.setChanged(true);
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        });
+        };
+        mTitle.addTextChangedListener(mTextChangeListener);
+        mContent.addTextChangedListener(mTextChangeListener);
 
         return root;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        /*
+            메뉴 버튼 : Delete
+            home : 뒤로가기 버튼
+         */
         switch (item.getItemId()){
             case R.id.edit_menu_delete: //현재 메모 삭제
-                mPresenter.deleteMemo();
+                Utils.getDeleteConfirmDialog(getContext(),"메모 삭제","정말 삭제하시겠습니까?",(dialogInterface, i) -> {
+                    mPresenter.deleteMemo();
+                }).show();
                 break;
-            case android.R.id.home: // 뒤로가기
+            case android.R.id.home:
                 mPresenter.onClickBackButton();
                 break;
         }
@@ -152,22 +137,30 @@ public class AddEditMemoFragment extends Fragment implements AddEditContract.Vie
 
     //메모 리스트 화면으로 돌아가기
     @Override
-    public void showMemoList() {
+    public void showMemoListPage() {
         getActivity().setResult(Activity.RESULT_OK);
         getActivity().finish();
     }
 
     @Override
     public void setTitle(String title) {
+        mTitle.removeTextChangedListener(mTextChangeListener);
         mTitle.setText(title);
+        mTitle.addTextChangedListener(mTextChangeListener);
     }
 
     @Override
     public void setContent(String content) {
+        mContent.removeTextChangedListener(mTextChangeListener);
         mContent.setText(content);
+        mContent.addTextChangedListener(mTextChangeListener);
     }
 
-    //toggle editable
+    /*
+     * 편집 모드 toggle
+     * EditText View들의 editable을 토글
+     * 저장 버튼과 편집 버튼을 toggle해서 show
+     */
     @Override
     public void toggleEditMode(boolean editable) {
         mTitle.setFocusable(editable);
@@ -175,7 +168,7 @@ public class AddEditMemoFragment extends Fragment implements AddEditContract.Vie
         mContent.setFocusable(editable);
         mContent.setFocusableInTouchMode(editable);
         if(editable) {
-            mSaveBtn.setText("SAVE");
+            //편집 모드
             mSaveBtn.setVisibility(View.VISIBLE);
             mTitle.setOnClickListener(null);
             mContent.setOnClickListener(null);
@@ -202,7 +195,7 @@ public class AddEditMemoFragment extends Fragment implements AddEditContract.Vie
     }
 
     @Override
-    public void showMemoListAndMessage(String message) {
+    public void showMemoListPageAndMessage(String message) {
         Intent data = new Intent();
         data.putExtra("MESSAGE", message);
         getActivity().setResult(MemoListFragment.RESULT_CODE_MESSAGE,data);
@@ -211,15 +204,23 @@ public class AddEditMemoFragment extends Fragment implements AddEditContract.Vie
 
     @Override
     public void showChangeAlert() {
-        Utils.getSaveAlertDialog(getContext(),"","저장하시겠습니까?",(dialog, which) -> {
-            mPresenter.saveMemoAndClose(mTitle.getText().toString(), mContent.getText().toString());
+        Utils.getSaveAlertDialog(getContext(),"변경사항 저장","저장하시겠습니까?",(dialog, which) -> {
+            mPresenter.saveMemo(mTitle.getText().toString(), mContent.getText().toString(),true);
         },(dialog, which) -> {
-            showMemoList();
+            showMemoListPage();
         }).show();
     }
 
     @Override
     public void setPresenter(AddEditContract.Presenter presenter) {
         this.mPresenter = presenter;
+    }
+
+    private abstract class SimpleTextChangeListener implements TextWatcher {
+        @Override
+        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+
+        @Override
+        public void afterTextChanged(Editable editable) { }
     }
 }

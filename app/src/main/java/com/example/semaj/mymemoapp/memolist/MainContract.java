@@ -18,6 +18,8 @@ public interface MainContract {
         void showMessage(String message);
 
         void toggleSelectMode(boolean selectMode);
+
+        void scrollUp();
     }
 
     interface Presenter extends BasePresenter {

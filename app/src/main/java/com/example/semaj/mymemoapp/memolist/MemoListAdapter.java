@@ -14,9 +14,7 @@ import android.widget.TextView;
 import com.example.semaj.mymemoapp.R;
 import com.example.semaj.mymemoapp.Utils;
 import com.example.semaj.mymemoapp.data.Memo;
-import com.example.semaj.mymemoapp.data.SelectableMemo;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -31,13 +29,13 @@ public class MemoListAdapter extends ListAdapter<Memo, MemoListAdapter.MemoViewH
     private ItemClickListener<Memo> mClickListener;
     private ItemClickListener<Memo> mSelectListener;
     private boolean selectable = false;
-    private boolean[] selects;
+    private boolean[] selectItems;
 
-    public MemoListAdapter(ItemClickListener<Memo> clickListener, ItemClickListener<Memo> selectListener) {
+    MemoListAdapter(ItemClickListener<Memo> clickListener, ItemClickListener<Memo> selectListener) {
         this(new DiffUtil.ItemCallback<Memo>() {
             @Override
             public boolean areItemsTheSame(@NonNull Memo t, @NonNull Memo t1) {
-                return t.getId() == t1.getId();
+                return t.getId().equals(t1.getId());
             }
 
             @Override
@@ -61,7 +59,7 @@ public class MemoListAdapter extends ListAdapter<Memo, MemoListAdapter.MemoViewH
 
     @Override
     public void submitList(@Nullable List<Memo> list) {
-        selects = new boolean[list.size()];
+        selectItems = new boolean[list.size()];
         super.submitList(list);
     }
 
@@ -80,12 +78,12 @@ public class MemoListAdapter extends ListAdapter<Memo, MemoListAdapter.MemoViewH
     void setSelectable(boolean selectable) {
         this.selectable = selectable;
         if(!selectable)
-            for(int i=0;i<selects.length;++i)
-                selects[i] = false;
+            for(int i = 0; i< selectItems.length; ++i)
+                selectItems[i] = false;
     }
     public void setAllItemSelect(boolean select){
-        for(int i=0;i<selects.length;++i)
-            selects[i] = select;
+        for(int i = 0; i< selectItems.length; ++i)
+            selectItems[i] = select;
     }
 
     //ViewHolder Class
@@ -114,17 +112,17 @@ public class MemoListAdapter extends ListAdapter<Memo, MemoListAdapter.MemoViewH
             }else {
                 ckBox.setVisibility(View.GONE);
             }
-            ckBox.setChecked(selects[pos]);
+            ckBox.setChecked(selectItems[pos]);
             root.setOnClickListener(v -> {
                 clickListener.onClick(memo);
                 if(selectable){
                     ckBox.setChecked(!ckBox.isChecked());
-                    selects[pos] = !selects[pos];
+                    selectItems[pos] = !selectItems[pos];
                 }
             });
             root.setOnLongClickListener(v -> {
                 ckBox.setChecked(true);
-                selects[pos] = true;
+                selectItems[pos] = true;
                 clickListener.onLongClick(memo);
                 return true;
             });

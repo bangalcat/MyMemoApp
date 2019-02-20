@@ -54,6 +54,8 @@ public class MemoListFragment extends Fragment implements MainContract.View {
     private SearchView mSearchView;
 
     private MemoListAdapter mAdapter;
+
+    private StaggeredGridLayoutManager mLayoutManager;
     // 선택 모드 아닐때 click listener
     private ItemClickListener<Memo> mClickListener = new ItemClickListener<Memo>() {
         @Override
@@ -108,9 +110,9 @@ public class MemoListFragment extends Fragment implements MainContract.View {
 
         mRcvMemoList = root.findViewById(R.id.rcv_memo_list);
 //        mRcvMemoList.setLayoutManager(new LinearLayoutManager(getContext()));
-        StaggeredGridLayoutManager _sglm = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-        _sglm.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
-        mRcvMemoList.setLayoutManager(_sglm);
+        mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+        mLayoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
+        mRcvMemoList.setLayoutManager(mLayoutManager);
         mRcvMemoList.setAdapter(mAdapter);
 
         mAddBtn = getActivity().findViewById(R.id.fab_add);
@@ -252,7 +254,7 @@ public class MemoListFragment extends Fragment implements MainContract.View {
 
     @Override
     public void showMessage(String message) {
-        Snackbar.make(getView(), message, Snackbar.LENGTH_SHORT).show();
+        Snackbar.make(getView(), message, Snackbar.LENGTH_LONG).show();
     }
 
     // 다중 선택 모드 toggle
@@ -278,5 +280,11 @@ public class MemoListFragment extends Fragment implements MainContract.View {
             mSearchMenuItem.setVisible(true);
             mAddBtn.show();
         }
+    }
+
+    @Override
+    public void scrollUp() {
+//        mRcvMemoList.scrollTo();
+        mLayoutManager.scrollToPositionWithOffset(0,0);
     }
 }

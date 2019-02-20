@@ -4,7 +4,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
 
 import com.example.semaj.mymemoapp.Utils;
@@ -13,7 +12,6 @@ import com.example.semaj.mymemoapp.data.MemoDataSource;
 
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -109,7 +107,7 @@ public class LocalMemoDataSource implements MemoDataSource {
                 null);
 
         if(cursor.moveToNext()) {
-            Long itemId = cursor.getLong(cursor.getColumnIndexOrThrow(MemoDbContract.Entry._ID));
+            Long itemId = cursor.getLong(cursor.getColumnIndexOrThrow(MemoDbContract.Entry.ENTRY_ID));
             String title = cursor.getString(cursor.getColumnIndexOrThrow(MemoDbContract.Entry.COLUMN_NAME_TITLE));
             String content = cursor.getString(cursor.getColumnIndexOrThrow(MemoDbContract.Entry.COLUMN_NAME_CONTENT));
             String date = cursor.getString(cursor.getColumnIndexOrThrow(MemoDbContract.Entry.COLUMN_NAME_DATE));
