@@ -1,4 +1,4 @@
-package com.example.semaj.mymemoapp.addeditmemo;
+package com.example.semaj.mymemoapp.view.addeditmemo;
 
 
 import android.app.Activity;
@@ -21,7 +21,8 @@ import android.widget.Toast;
 
 import com.example.semaj.mymemoapp.R;
 import com.example.semaj.mymemoapp.Utils;
-import com.example.semaj.mymemoapp.memolist.MemoListFragment;
+import com.example.semaj.mymemoapp.view.memolist.MainContract;
+import com.example.semaj.mymemoapp.view.memolist.MemoListFragment;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -97,6 +98,7 @@ public class AddEditMemoFragment extends Fragment implements AddEditContract.Vie
             mPresenter.saveMemo(mTitle.getText().toString(), mContent.getText().toString(), false);
             Utils.hideKeyboard(getActivity());
         });
+        //text change 된 상태를 presenter에 전달
         mTextChangeListener = new SimpleTextChangeListener() {
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -144,6 +146,7 @@ public class AddEditMemoFragment extends Fragment implements AddEditContract.Vie
 
     @Override
     public void setTitle(String title) {
+        //setText에도 textChange event가 반응하기에 listener를 잠깐 제거하고 text 변경
         mTitle.removeTextChangedListener(mTextChangeListener);
         mTitle.setText(title);
         mTitle.addTextChangedListener(mTextChangeListener);
@@ -197,7 +200,7 @@ public class AddEditMemoFragment extends Fragment implements AddEditContract.Vie
     @Override
     public void showMemoListPageAndMessage(String message) {
         Intent data = new Intent();
-        data.putExtra("MESSAGE", message);
+        data.putExtra(MainContract.View.EXTRA_MESSAGE, message);
         getActivity().setResult(MemoListFragment.RESULT_CODE_MESSAGE,data);
         getActivity().finish();
     }

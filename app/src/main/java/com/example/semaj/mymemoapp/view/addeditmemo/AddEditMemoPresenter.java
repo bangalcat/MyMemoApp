@@ -1,4 +1,4 @@
-package com.example.semaj.mymemoapp.addeditmemo;
+package com.example.semaj.mymemoapp.view.addeditmemo;
 
 import android.text.TextUtils;
 

@@ -1,4 +1,4 @@
-package com.example.semaj.mymemoapp.memolist;
+package com.example.semaj.mymemoapp.view.memolist;
 
 
 import android.app.Activity;
@@ -10,7 +10,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
@@ -24,8 +23,9 @@ import android.widget.SearchView;
 import android.widget.TextView;
 
 import com.example.semaj.mymemoapp.R;
-import com.example.semaj.mymemoapp.addeditmemo.AddEditMemoActivity;
-import com.example.semaj.mymemoapp.addeditmemo.AddEditMemoFragment;
+import com.example.semaj.mymemoapp.Utils;
+import com.example.semaj.mymemoapp.view.addeditmemo.AddEditMemoActivity;
+import com.example.semaj.mymemoapp.view.addeditmemo.AddEditMemoFragment;
 import com.example.semaj.mymemoapp.data.Memo;
 
 import java.util.List;
@@ -41,26 +41,36 @@ public class MemoListFragment extends Fragment implements MainContract.View {
     public static final int RESULT_CODE_MESSAGE = 0x1;
     private MainContract.Presenter mPresenter;
 
-    //components
+    // components
     private FloatingActionButton mAddBtn;
     private RecyclerView mRcvMemoList;
     private TextView mCancelBtn;
 
-    //menu items
+    // menu items
+    // 선택 모드 시 보여지는 메뉴 항목이 다름
     private MenuItem mDeleteMenuItem;
     private MenuItem mSelectMenuItem;
     private MenuItem mSelectAllMenuItem;
     private MenuItem mSearchMenuItem;
     private SearchView mSearchView;
 
+    //RecyclerView Adapter
     private MemoListAdapter mAdapter;
 
+    // for scroll up
     private StaggeredGridLayoutManager mLayoutManager;
+
+    /*
+           mClickListener : 선택 모드 아닐때 item click listener
+           mSelectListener : 선택 모드 중 item click listener
+           Adapter는 인터페이스가 같은 두 Listener를 가지고 있다가
+           select 모드에 맞는 listener 할당
+     */
     // 선택 모드 아닐때 click listener
     private ItemClickListener<Memo> mClickListener = new ItemClickListener<Memo>() {
         @Override
         public void onClick(Memo item) {
-            mPresenter.openMemoDetail(item);
+            mPresenter.onClickMemo(item);
         }
 
         @Override
@@ -116,10 +126,10 @@ public class MemoListFragment extends Fragment implements MainContract.View {
         mRcvMemoList.setAdapter(mAdapter);
 
         mAddBtn = getActivity().findViewById(R.id.fab_add);
-        mAddBtn.setOnClickListener(v -> mPresenter.addNewMemo());
+        mAddBtn.setOnClickListener(v -> mPresenter.onClickAddButton());
         mCancelBtn = root.findViewById(R.id.toolbar_left);
         mCancelBtn.setVisibility(View.GONE);
-        mCancelBtn.setText("Cancel");
+        mCancelBtn.setText("취소");
         mCancelBtn.setOnClickListener(view -> {
             mPresenter.onClickSelectCancel();
         });
@@ -127,10 +137,6 @@ public class MemoListFragment extends Fragment implements MainContract.View {
 
         Toolbar toolbar =  root.findViewById(R.id.toolbar);
         ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
-        TextView rightToolbar = root.findViewById(R.id.toolbar_right);
-        rightToolbar.setText("");
-        TextView middle = root.findViewById(R.id.toolbar_middle);
-        middle.setText("");
 
         return root;
     }
@@ -142,9 +148,9 @@ public class MemoListFragment extends Fragment implements MainContract.View {
             if(resultCode == Activity.RESULT_OK){
                 mPresenter.loadData(true);
             }else if(resultCode == Activity.RESULT_CANCELED){
-                mPresenter.loadData(true);
+                mPresenter.loadData(false);
             }else if(resultCode == RESULT_CODE_MESSAGE){
-                String message = data.getStringExtra("MESSAGE");
+                String message = data.getStringExtra(EXTRA_MESSAGE);
                 showMessage(message);
                 mPresenter.loadData(true);
             }
@@ -170,7 +176,7 @@ public class MemoListFragment extends Fragment implements MainContract.View {
         mSearchView = (SearchView) mSearchMenuItem.getActionView();
         if(mSearchView != null){
             mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
-            mSearchView.setQueryHint("search text");
+            mSearchView.setQueryHint("input text");
             //검색창 텍스트 입력을 자동 인식 - 매번 쿼리 전달
             mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 @Override
@@ -185,8 +191,6 @@ public class MemoListFragment extends Fragment implements MainContract.View {
                 }
             });
         }
-
-
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -198,8 +202,9 @@ public class MemoListFragment extends Fragment implements MainContract.View {
                 break;
             case R.id.menu_select: // 선택 모드
                 mSearchView.setQuery("",true);
+                mSearchView.onActionViewCollapsed();
                 mSearchView.clearFocus();
-                toggleSelectMode(true); //딱히 presenter 호출 안해도 될듯?
+                toggleSelectMode(true);
                 break;
             case R.id.menu_search: // 검색 버튼 - 검색은 searchView에 로직
                 toggleSelectMode(false);  //검색 시 다중선택모드 취소
@@ -207,8 +212,8 @@ public class MemoListFragment extends Fragment implements MainContract.View {
             case R.id.menu_select_all:
                 // Need to change process
                 mAdapter.setAllItemSelect(true);
-                mAdapter.notifyItemRangeChanged(0,mAdapter.getItemCount());
-                mPresenter.selectAll();
+                mAdapter.notifyDataSetChanged();
+                mPresenter.selectAll(mSearchView.getQuery());
                 break;
         }
         return true;
@@ -232,7 +237,7 @@ public class MemoListFragment extends Fragment implements MainContract.View {
     }
 
     @Override
-    public void showMemoDetail(long id) {
+    public void showMemoDetailPage(long id) {
         //create new activity
         //add memo와 같은 activity 호출하지만, intent extra에 memo의 id를 넣음
         Intent intent = new Intent(getContext(), AddEditMemoActivity.class);
@@ -241,7 +246,7 @@ public class MemoListFragment extends Fragment implements MainContract.View {
     }
 
     @Override
-    public void showAddMemo() {
+    public void showAddMemoPage() {
         //create new activity
         Intent intent = new Intent(getContext(), AddEditMemoActivity.class);
         startActivityForResult(intent, AddEditMemoActivity.REQUEST_ADD_MEMO);
@@ -263,10 +268,11 @@ public class MemoListFragment extends Fragment implements MainContract.View {
     @Override
     public void toggleSelectMode(boolean selectMode) {
         mAdapter.setSelectable(selectMode);
-        mAdapter.notifyItemRangeChanged(0,mAdapter.getItemCount());
+        mAdapter.notifyDataSetChanged();
         //다중 선택 모드에서 Cancel 버튼이 툴바 왼쪽에 나올 수 있도록
         mCancelBtn.setVisibility(selectMode?View.VISIBLE:View.GONE);
         if(selectMode) {
+            Utils.hideKeyboard(getActivity());
             mSelectAllMenuItem.setVisible(true);
             mDeleteMenuItem.setVisible(true);
             mSelectMenuItem.setVisible(false);
@@ -284,6 +290,8 @@ public class MemoListFragment extends Fragment implements MainContract.View {
 
     @Override
     public void scrollUp() {
+        // 이렇게 구현하면 recyclerview가 새로 그려진 후에 scroll하도록 할수 있다.
+        // 안그러면 adapter가 recyclerview를 그리기 전에 scroll하려고 시도하게됨
         mRcvMemoList.post(() -> {
             mRcvMemoList.smoothScrollToPosition(0);
             mLayoutManager.scrollToPositionWithOffset(0,0);

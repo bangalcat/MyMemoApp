@@ -9,14 +9,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".memolist.MainActivity">
+        <activity android:name=".view.memolist.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".addeditmemo.AddEditMemoActivity"></activity>
+        <activity android:name=".view.addeditmemo.AddEditMemoActivity" />
     </application>
 
 </manifest>

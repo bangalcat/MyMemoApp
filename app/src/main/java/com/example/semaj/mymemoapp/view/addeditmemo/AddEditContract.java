@@ -1,4 +1,4 @@
-package com.example.semaj.mymemoapp.addeditmemo;
+package com.example.semaj.mymemoapp.view.addeditmemo;
 
 import com.example.semaj.mymemoapp.BasePresenter;
 import com.example.semaj.mymemoapp.BaseView;

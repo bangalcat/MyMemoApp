@@ -1,4 +1,4 @@
-package com.example.semaj.mymemoapp.addeditmemo;
+package com.example.semaj.mymemoapp.view.addeditmemo;
 
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;

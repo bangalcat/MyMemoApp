@@ -1,4 +1,4 @@
-package com.example.semaj.mymemoapp.memolist;
+package com.example.semaj.mymemoapp.view.memolist;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;

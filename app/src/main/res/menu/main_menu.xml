@@ -4,21 +4,21 @@
 
     <item
         android:id="@+id/menu_select"
-        android:title="Select"
+        android:title="선택 모드"
         app:showAsAction="never" />
     <item
         android:id="@+id/menu_search"
         android:icon="@drawable/ic_search_black_24dp"
-        android:title="Search"
+        android:title="검색"
         app:actionViewClass="android.widget.SearchView"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/menu_select_all"
-        android:title="Select All"
+        android:title="전체 선택"
         app:showAsAction="never" />
     <item
         android:id="@+id/menu_delete"
-        android:title="Delete"
+        android:title="선택 항목 삭제"
         app:showAsAction="never"
         />
 </menu>

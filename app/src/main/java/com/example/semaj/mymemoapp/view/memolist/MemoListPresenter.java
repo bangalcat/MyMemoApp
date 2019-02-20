@@ -1,4 +1,7 @@
-package com.example.semaj.mymemoapp.memolist;
+package com.example.semaj.mymemoapp.view.memolist;
+
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.example.semaj.mymemoapp.data.Memo;
 import com.example.semaj.mymemoapp.data.MemoRepository;
@@ -62,7 +65,8 @@ public class MemoListPresenter implements MainContract.Presenter {
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(memoList -> {
                                     mView.showMemoList(memoList);
-                                    mView.scrollUp();
+                                    if(forceUpdate)
+                                        mView.scrollUp();
                                 },
                                 throwable -> mView.showMessage("메모 목록을 불러오는데 실패하였습니다."))
         );
@@ -70,13 +74,13 @@ public class MemoListPresenter implements MainContract.Presenter {
     }
 
     @Override
-    public void addNewMemo() {
-        mView.showAddMemo();
+    public void onClickAddButton() {
+        mView.showAddMemoPage();
     }
 
     @Override
-    public void openMemoDetail(Memo item) {
-        mView.showMemoDetail(item.getId());
+    public void onClickMemo(Memo item) {
+        mView.showMemoDetailPage(item.getId());
     }
 
     // 선택된 메모 삭제 후 view에 message 출력, list 갱신
@@ -124,6 +128,7 @@ public class MemoListPresenter implements MainContract.Presenter {
     //모든 선택 취소 및 선택창 토글
     @Override
     public void onClickSelectCancel() {
+        selectedIds.clear();
         mView.toggleSelectMode(false);
     }
 
@@ -140,21 +145,27 @@ public class MemoListPresenter implements MainContract.Presenter {
                         .flatMap(Flowable::fromIterable) //Flowable<List<Memo>>를 Flowable<Memo>로 개별 방출하도록
                         .filter(memo -> memo.getTitle().contains(query) || memo.getContent().contains(query)) // 개별 방출한것중 query포함한것만 필터링
                         .toList() // 다시 Flowable<List<>>로
+                        .doOnSuccess(memos -> {
+                            Collections.sort(memos, (memo, t1) -> t1.getDate().compareTo(memo.getDate()));
+                        })
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(memoList -> mView.showMemoList(memoList),
                                 throwable -> {
                                     throwable.printStackTrace();
+                                    mView.showMessage("검색 에러");
                                 })
         );
     }
 
     @Override
-    public void selectAll() {
+    public void selectAll(@Nullable CharSequence query) {
         //add memo to ids
+        CharSequence finalQuery = query==null?"":query;
         mCompositeDisposable.add(
                 mRepo.getMemoList()
                         .subscribeOn(Schedulers.computation())
                         .flatMap(memoList -> Flowable.fromIterable(memoList))
+                        .filter(memo -> memo.getTitle().contains(finalQuery)|| memo.getContent().contains(finalQuery))
                         .subscribe(item -> {
                             selectedIds.add(item.getId());
                         },Throwable::printStackTrace)

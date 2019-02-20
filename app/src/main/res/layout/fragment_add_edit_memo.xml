@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="@color/edit_backcolor"
     android:orientation="vertical"
-    tools:context=".addeditmemo.AddEditMemoFragment">
+    tools:context=".view.addeditmemo.AddEditMemoFragment">
 
 
     <EditText

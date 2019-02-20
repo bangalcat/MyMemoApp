@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/edit_backcolor"
     android:orientation="vertical"
-    tools:context=".memolist.MemoListFragment">
+    tools:context=".view.memolist.MemoListFragment">
 
     <include
         android:id="@+id/include"

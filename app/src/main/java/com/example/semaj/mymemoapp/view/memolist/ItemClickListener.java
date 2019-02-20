@@ -1,4 +1,4 @@
-package com.example.semaj.mymemoapp.memolist;
+package com.example.semaj.mymemoapp.view.memolist;
 
 public interface ItemClickListener<T> {
     void onClick(T item);
