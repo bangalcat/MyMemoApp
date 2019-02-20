@@ -11,6 +11,12 @@ import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
 
+/**
+ * MemoDataSource를 구현한 종합 Repository
+ * data를 cache하여 매번 local/remote에서 불러오지 않아도 되도록
+ * 현재는 간단하게 local에서만 불러오도록 되어있어 cache dirty 처리가 단순하게 처리
+ * Singleton 객체로 유지
+ */
 //Singleton
 public class MemoRepository implements MemoDataSource {
 

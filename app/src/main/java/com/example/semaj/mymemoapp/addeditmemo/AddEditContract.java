@@ -15,9 +15,9 @@ public interface AddEditContract {
 
         void showMessage(String message);
 
-        void showMemoListAndDeleteMessage();
-
         void showDate(String date);
+
+        void showMemoListAndMessage(String message);
     }
     interface Presenter extends BasePresenter{
 
@@ -28,5 +28,11 @@ public interface AddEditContract {
         boolean isNewMemo();
 
         void deleteMemo();
+
+        void saveMemoAndClose(String title, String content);
+
+        void setChanged(boolean changed);
+
+        boolean isChanged();
     }
 }

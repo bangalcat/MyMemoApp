@@ -45,6 +45,10 @@ public class AddEditMemoActivity extends AppCompatActivity {
                 fragment,
                 memoId != -1
         );
+    }
 
+    @Override
+    public void onBackPressed() {
+        mPresenter.onClickBackButton();
     }
 }

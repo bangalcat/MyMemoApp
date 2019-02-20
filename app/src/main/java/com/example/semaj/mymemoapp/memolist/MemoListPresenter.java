@@ -46,26 +46,25 @@ public class MemoListPresenter implements MainContract.Presenter {
 
     @Override
     public void loadData(boolean forceUpdate) {
-        //forceUpdate는 cache는 그대로인데 DB가 갱신되었을 때에 필요
-        //현재 MemoRepository에 cache는 DB와 똑같이 갱신되므로 refresh 기능이 없음
-        // 따라서 forceUpdate 불필요..
-        // 사실은 cache가 변했을 때도 View에 넘겨주기 위해 forceUpdate해주어야한다
-        // 결국 현재 forceUpdate는 불필요한 변수 - 무조건 true
+        // forceUpdate는 cache는 그대로인데 DB가 갱신되었을 때에 필요
+        // 현재 구조로는 forceUpdate는 불필요 (캐시가 계속 DB와 동기화됨)
         // MemoRepository에 refresh 기능 추가하면 바꾸도록
-        if(forceUpdate)
-            mCompositeDisposable.add(
-                    mRepo.getMemoList()
-                            .doOnNext(memoList -> {
-                                Collections.sort(memoList, (o1, o2) -> o2.getDate().compareTo(o1.getDate()));
-                                selectedIds = new TreeSet<>();
-                            })
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe(memoList -> {
-                                        mView.showMemoList(memoList);
-                                    },
-                                    throwable -> mView.showMessage("메모 목록을 불러오는데 실패하였습니다."))
-            );
+        if(forceUpdate){
+            //repo 갱신
+        }
+        mCompositeDisposable.add(
+                mRepo.getMemoList()
+                        .doOnNext(memoList -> {
+                            Collections.sort(memoList, (o1, o2) -> o2.getDate().compareTo(o1.getDate()));
+                            selectedIds = new TreeSet<>();
+                        })
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(memoList -> {
+                                    mView.showMemoList(memoList);
+                                },
+                                throwable -> mView.showMessage("메모 목록을 불러오는데 실패하였습니다."))
+        );
         isFirstLoad = false;
     }
 
@@ -83,8 +82,12 @@ public class MemoListPresenter implements MainContract.Presenter {
     @Override
     public void onClickDeleteSelectedMemos() {
         int cnt = selectedIds.size();
+        if(cnt == 0){
+            mView.showMessage("선택된 메시지가 없습니다");
+            return;
+        }
         mCompositeDisposable.add(
-                mRepo.deleteMemos(new ArrayList<Long>(selectedIds))
+                mRepo.deleteMemos(new ArrayList<>(selectedIds))
                         .subscribeOn(Schedulers.io())
                         .andThen(mRepo.getMemoList())
                         .doOnNext(memoList -> {
@@ -96,10 +99,7 @@ public class MemoListPresenter implements MainContract.Presenter {
                             mView.showMemoList(memoList);
                             mView.showMessage("선택된 "+cnt+"개 메모가 삭제되었습니다");
                         },throwable -> {
-                            if(throwable instanceof IndexOutOfBoundsException)
-                                mView.showMessage("선택된 메시지가 없습니다");
-                            else
-                                mView.showMessage("메시지 삭제 오류");
+                            mView.showMessage("메시지 삭제 오류");
                         })
         );
     }
@@ -152,11 +152,11 @@ public class MemoListPresenter implements MainContract.Presenter {
         //add memo to ids
         mCompositeDisposable.add(
                 mRepo.getMemoList()
-                .subscribeOn(Schedulers.computation())
-                .flatMap(memoList -> Flowable.fromIterable(memoList))
-                .subscribe(item -> {
-                    selectedIds.add(item.getId());
-                },Throwable::printStackTrace)
+                        .subscribeOn(Schedulers.computation())
+                        .flatMap(memoList -> Flowable.fromIterable(memoList))
+                        .subscribe(item -> {
+                            selectedIds.add(item.getId());
+                        },Throwable::printStackTrace)
         );
     }
 

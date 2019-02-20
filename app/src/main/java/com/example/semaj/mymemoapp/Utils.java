@@ -2,9 +2,11 @@ package com.example.semaj.mymemoapp;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
@@ -46,5 +48,14 @@ public class Utils {
 
     public static void showToastMessage(Activity activity, String message){
         Toast.makeText(activity, message, Toast.LENGTH_SHORT).show();
+    }
+
+    public static AlertDialog.Builder getSaveAlertDialog(Context context, String title, String message, DialogInterface.OnClickListener positiveListener, DialogInterface.OnClickListener negativeListener){
+        return new AlertDialog.Builder(context)
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton("저장",positiveListener)
+                .setCancelable(true)
+                .setNegativeButton("삭제", negativeListener);
     }
 }

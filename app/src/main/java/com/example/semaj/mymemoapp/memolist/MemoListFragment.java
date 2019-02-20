@@ -38,8 +38,8 @@ import java.util.List;
  */
 public class MemoListFragment extends Fragment implements MainContract.View {
 
+    public static final int RESULT_CODE_MESSAGE = 0x1;
     private MainContract.Presenter mPresenter;
-    public static final int RESULT_CODE_DELETE = 0x2;
 
     //components
     private FloatingActionButton mAddBtn;
@@ -140,11 +140,10 @@ public class MemoListFragment extends Fragment implements MainContract.View {
             if(resultCode == Activity.RESULT_OK){
                 mPresenter.loadData(true);
             }else if(resultCode == Activity.RESULT_CANCELED){
-                //원래 false여야 하지만 지금 구조로 하면 그냥 true
                 mPresenter.loadData(true);
-            }else if(resultCode == RESULT_CODE_DELETE){
-                //메시지 삭제 후 진입
-                showMessage("메세지가 삭제되었습니다");
+            }else if(resultCode == RESULT_CODE_MESSAGE){
+                String message = data.getStringExtra("MESSAGE");
+                showMessage(message);
                 mPresenter.loadData(true);
             }
         }
@@ -196,6 +195,8 @@ public class MemoListFragment extends Fragment implements MainContract.View {
                 mPresenter.onClickDeleteSelectedMemos();
                 break;
             case R.id.menu_select: // 선택 모드
+                mSearchView.setQuery("",true);
+                mSearchView.clearFocus();
                 toggleSelectMode(true); //딱히 presenter 호출 안해도 될듯?
                 break;
             case R.id.menu_search: // 검색 버튼 - 검색은 searchView에 로직
@@ -260,7 +261,7 @@ public class MemoListFragment extends Fragment implements MainContract.View {
     @Override
     public void toggleSelectMode(boolean selectMode) {
         mAdapter.setSelectable(selectMode);
-        mAdapter.notifyDataSetChanged();
+        mAdapter.notifyItemRangeChanged(0,mAdapter.getItemCount());
         //다중 선택 모드에서 Cancel 버튼이 툴바 왼쪽에 나올 수 있도록
         mCancelBtn.setVisibility(selectMode?View.VISIBLE:View.GONE);
         if(selectMode) {

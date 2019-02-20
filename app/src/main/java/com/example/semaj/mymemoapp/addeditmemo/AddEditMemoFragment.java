@@ -2,6 +2,7 @@ package com.example.semaj.mymemoapp.addeditmemo;
 
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -102,7 +103,14 @@ public class AddEditMemoFragment extends Fragment implements AddEditContract.Vie
                 mPresenter.deleteMemo();
                 break;
             case android.R.id.home: // 뒤로가기
-                showMemoList();
+                if(mPresenter.isNewMemo() || mPresenter.isChanged()){
+                    Utils.getSaveAlertDialog(getContext(),"저장되지 않은 메모","저장 하시겠습니까?",(dialog, which) -> {
+                        mPresenter.saveMemoAndClose(mTitle.getText().toString(), mContent.getText().toString());
+                    }, (dialog, which) -> {
+                        showMemoList();
+                    }).show();
+                }else
+                    showMemoList();
                 break;
         }
         return true;
@@ -146,6 +154,7 @@ public class AddEditMemoFragment extends Fragment implements AddEditContract.Vie
             mContent.setOnClickListener(null);
             mEditBtn.hide();
         } else {
+            getActivity().invalidateOptionsMenu();
             mSaveBtn.setVisibility(View.GONE);
             // 입력란 클릭해도 편집모드로 들어가도록
             mTitle.setOnClickListener(v -> mPresenter.onClickEditMode());
@@ -161,14 +170,16 @@ public class AddEditMemoFragment extends Fragment implements AddEditContract.Vie
     }
 
     @Override
-    public void showMemoListAndDeleteMessage() {
-        getActivity().setResult(MemoListFragment.RESULT_CODE_DELETE);
-        getActivity().finish();
+    public void showDate(String date) {
+        mSavedDate.setText(date);
     }
 
     @Override
-    public void showDate(String date) {
-        mSavedDate.setText(date);
+    public void showMemoListAndMessage(String message) {
+        Intent data = new Intent();
+        data.putExtra("MESSAGE", message);
+        getActivity().setResult(MemoListFragment.RESULT_CODE_MESSAGE,data);
+        getActivity().finish();
     }
 
     @Override

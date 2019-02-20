@@ -20,6 +20,7 @@ public class AddEditMemoPresenter implements AddEditContract.Presenter {
     private AddEditContract.View mView;
     private boolean mShouldLoadData;
     private CompositeDisposable mCompositeDisposable;
+    private boolean changed;
 
     public AddEditMemoPresenter(long memoId, MemoRepository repo, AddEditContract.View view, boolean shouldLoadData) {
         mId = memoId;
@@ -27,6 +28,7 @@ public class AddEditMemoPresenter implements AddEditContract.Presenter {
         mView = view;
         mView.setPresenter(this);
         mShouldLoadData = shouldLoadData; // 현재 사실 mId로만 검사해서 불필요
+        changed = false;
         mCompositeDisposable = new CompositeDisposable();
     }
 
@@ -114,6 +116,49 @@ public class AddEditMemoPresenter implements AddEditContract.Presenter {
                 mRepo.deleteMemo(mId)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(() -> mView.showMemoListAndDeleteMessage()));
+                        .subscribe(() -> mView.showMemoListAndMessage("메모가 삭제되었습니다")));
+    }
+
+    @Override
+    public void saveMemoAndClose(String title, String content) {
+        Memo memo;
+        //제목은 없어도 되지만 내용은 있어야됨
+        if(TextUtils.isEmpty(content)){
+            mView.showMessage("내용을 입력해야 합니다");
+            return;
+        }
+        boolean isNew = isNewMemo();
+        if(isNew){
+            //key는 생성됨
+            memo = new Memo(title,content, Calendar.getInstance().getTime());
+        }else{
+            memo = new Memo(mId,title,content, Calendar.getInstance().getTime());
+        }
+        mCompositeDisposable.add(
+                mRepo.saveMemo(memo)//db저장
+                        .subscribeOn(Schedulers.io())
+                        //this memo is saved, so state is change
+                        .doOnSuccess(memo1 -> mId = memo1.getId())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(memo1 -> {
+                            mView.showMemoListAndMessage("메모가 저장되었습니다.");
+                        }, throwable -> {
+                            mView.showMessage("Error : Fail to Save Memo");
+                        }));
+    }
+
+
+    @Override
+    public void setChanged(boolean changed) {
+        this.changed = changed;
+    }
+
+    @Override
+    public boolean isChanged() {
+        return changed;
+    }
+
+    public void onClickBackButton() {
+
     }
 }

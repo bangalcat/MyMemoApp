@@ -20,7 +20,14 @@ import java.util.List;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
-// Dao로 구현할까 했지만 그냥 SqlLiteOpenHelper 방식
+
+/**
+ * Local Database data를 handling하는 class
+ * DbHelper를 생성, 쿼리 기반으로 DB에서 data를 뽑아서 Memo객체로 만들어 반환
+ * 혹은 Memo객체의 내용물을 DB에 저장
+ * Callback 리스너를 RxJava로 대체 -  즉 RxJava가 callback구현
+ * 저장하고 삭제시에도 제대로 수행되었는지를 확인하기 위해 콜백 수행
+ */
 //Singleton
 public class LocalMemoDataSource implements MemoDataSource {
 
@@ -84,12 +91,12 @@ public class LocalMemoDataSource implements MemoDataSource {
     @Override
     public Flowable<Memo> getMemo(@NonNull Long memoId) {
         String[] projection = {
-                BaseColumns._ID,
+                MemoDbContract.Entry.ENTRY_ID,
                 MemoDbContract.Entry.COLUMN_NAME_TITLE,
                 MemoDbContract.Entry.COLUMN_NAME_CONTENT,
                 MemoDbContract.Entry.COLUMN_NAME_DATE,
         };
-        String selection = MemoDbContract.Entry._ID + " = ?";
+        String selection = MemoDbContract.Entry.ENTRY_ID + " = ?";
         String []selectionArgs = {"" +memoId};
 
         Cursor cursor = mDb.query(
