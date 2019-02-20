@@ -8,6 +8,8 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -92,6 +94,38 @@ public class AddEditMemoFragment extends Fragment implements AddEditContract.Vie
             mPresenter.saveMemo(mTitle.getText().toString(), mContent.getText().toString());
             Utils.hideKeyboard(getActivity());
         });
+        mTitle.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                mPresenter.setChanged(true);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+        mContent.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                mPresenter.setChanged(true);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
 
         return root;
     }
@@ -104,7 +138,7 @@ public class AddEditMemoFragment extends Fragment implements AddEditContract.Vie
                 break;
             case android.R.id.home: // 뒤로가기
                 if(mPresenter.isNewMemo() || mPresenter.isChanged()){
-                    Utils.getSaveAlertDialog(getContext(),"저장되지 않은 메모","저장 하시겠습니까?",(dialog, which) -> {
+                    Utils.getSaveAlertDialog(getContext(),"","저장 하시겠습니까?",(dialog, which) -> {
                         mPresenter.saveMemoAndClose(mTitle.getText().toString(), mContent.getText().toString());
                     }, (dialog, which) -> {
                         showMemoList();
@@ -180,6 +214,15 @@ public class AddEditMemoFragment extends Fragment implements AddEditContract.Vie
         data.putExtra("MESSAGE", message);
         getActivity().setResult(MemoListFragment.RESULT_CODE_MESSAGE,data);
         getActivity().finish();
+    }
+
+    @Override
+    public void showChangeAlert() {
+        Utils.getSaveAlertDialog(getContext(),"","저장하시겠습니까?",(dialog, which) -> {
+            mPresenter.saveMemoAndClose(mTitle.getText().toString(), mContent.getText().toString());
+        },(dialog, which) -> {
+            showMemoList();
+        }).show();
     }
 
     @Override

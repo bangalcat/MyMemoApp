@@ -52,7 +52,10 @@ public class AddEditMemoPresenter implements AddEditContract.Presenter {
                 mRepo.saveMemo(memo)//db저장
                         .subscribeOn(Schedulers.io())
                         //this memo is saved, so state is change
-                        .doOnSuccess(memo1 -> mId = memo1.getId())
+                        .doOnSuccess(memo1 -> {
+                            mId = memo1.getId();
+                            changed = false;
+                        })
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(memo1 -> {
                             mView.toggleEditMode(false);
@@ -159,6 +162,9 @@ public class AddEditMemoPresenter implements AddEditContract.Presenter {
     }
 
     public void onClickBackButton() {
-
+        if(isNewMemo() || isChanged()){
+            mView.showChangeAlert();
+        }else
+            mView.showMemoList();
     }
 }

@@ -18,6 +18,8 @@ public interface AddEditContract {
         void showDate(String date);
 
         void showMemoListAndMessage(String message);
+
+        void showChangeAlert();
     }
     interface Presenter extends BasePresenter{
 

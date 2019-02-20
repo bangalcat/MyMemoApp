@@ -56,6 +56,6 @@ public class Utils {
                 .setMessage(message)
                 .setPositiveButton("저장",positiveListener)
                 .setCancelable(true)
-                .setNegativeButton("삭제", negativeListener);
+                .setNegativeButton("저장하지 않음", negativeListener);
     }
 }
