@@ -14,7 +14,9 @@ import android.widget.TextView;
 import com.example.semaj.mymemoapp.R;
 import com.example.semaj.mymemoapp.Utils;
 import com.example.semaj.mymemoapp.data.Memo;
+import com.example.semaj.mymemoapp.data.SelectableMemo;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -24,22 +26,21 @@ import java.util.List;
  *      model의 상태를 다시 view에 반영하기가 어려움
  *      Memo 객체가 select 상태를 가지고 있어야 할까?
  */
-public class MemoListAdapter extends ListAdapter<Memo, MemoListAdapter.MemoViewHolder>{
+public class MemoListAdapter extends ListAdapter<SelectableMemo, MemoListAdapter.MemoViewHolder>{
 
     private ItemClickListener<Memo> mClickListener;
     private ItemClickListener<Memo> mSelectListener;
     private boolean selectable = false;
-    private boolean[] selectItems;
 
     MemoListAdapter(ItemClickListener<Memo> clickListener, ItemClickListener<Memo> selectListener) {
-        this(new DiffUtil.ItemCallback<Memo>() {
+        this(new DiffUtil.ItemCallback<SelectableMemo>() {
             @Override
-            public boolean areItemsTheSame(@NonNull Memo t, @NonNull Memo t1) {
+            public boolean areItemsTheSame(@NonNull SelectableMemo t, @NonNull SelectableMemo t1) {
                 return t.getId().equals(t1.getId());
             }
 
             @Override
-            public boolean areContentsTheSame(@NonNull Memo t, @NonNull Memo t1) {
+            public boolean areContentsTheSame(@NonNull SelectableMemo t, @NonNull SelectableMemo t1) {
                 return t == t1;
             }
         });
@@ -47,19 +48,18 @@ public class MemoListAdapter extends ListAdapter<Memo, MemoListAdapter.MemoViewH
         mSelectListener = selectListener;
     }
 
-//    void submitNewList(@Nullable List<Memo> list) {
-//        List<SelectableMemo> convList = new ArrayList<>();
-//        for(Memo m : list) convList.add(new SelectableMemo(m));
-//        super.submitList(convList);
-//    }
+    void submitNewList(@Nullable List<Memo> list) {
+        List<SelectableMemo> convList = new ArrayList<>();
+        for(Memo m : list) convList.add(new SelectableMemo(m));
+        super.submitList(convList);
+    }
 
-    private MemoListAdapter(@NonNull DiffUtil.ItemCallback<Memo> diffCallback) {
+    private MemoListAdapter(@NonNull DiffUtil.ItemCallback<SelectableMemo> diffCallback) {
         super(diffCallback);
     }
 
     @Override
-    public void submitList(@Nullable List<Memo> list) {
-        selectItems = new boolean[list.size()];
+    public void submitList(@Nullable List<SelectableMemo> list) {
         super.submitList(list);
     }
 
@@ -78,12 +78,11 @@ public class MemoListAdapter extends ListAdapter<Memo, MemoListAdapter.MemoViewH
     void setSelectable(boolean selectable) {
         this.selectable = selectable;
         if(!selectable)
-            for(int i = 0; i< selectItems.length; ++i)
-                selectItems[i] = false;
+            setAllItemSelect(false);
     }
     public void setAllItemSelect(boolean select){
-        for(int i = 0; i< selectItems.length; ++i)
-            selectItems[i] = select;
+        for(int i = 0,len=getItemCount(); i<len ; ++i)
+            getItem(i).setSelect(select);
     }
 
     //ViewHolder Class
@@ -103,7 +102,7 @@ public class MemoListAdapter extends ListAdapter<Memo, MemoListAdapter.MemoViewH
             ckBox = itemView.findViewById(R.id.checkBox);
             root = itemView;
         }
-        public void bind(Memo memo, ItemClickListener<Memo> clickListener, boolean selectable, int pos){
+        public void bind(SelectableMemo memo, ItemClickListener<Memo> clickListener, boolean selectable, int pos){
             tvTitle.setText(memo.getTitle());
             tvContent.setText(memo.getContent());
             tvDate.setText(Utils.getDateString(memo.getDate()).substring(5));
@@ -112,17 +111,17 @@ public class MemoListAdapter extends ListAdapter<Memo, MemoListAdapter.MemoViewH
             }else {
                 ckBox.setVisibility(View.GONE);
             }
-            ckBox.setChecked(selectItems[pos]);
+            ckBox.setChecked(memo.isSelect());
             root.setOnClickListener(v -> {
                 clickListener.onClick(memo);
                 if(selectable){
                     ckBox.setChecked(!ckBox.isChecked());
-                    selectItems[pos] = !selectItems[pos];
+                    memo.setSelect(!memo.isSelect());
                 }
             });
             root.setOnLongClickListener(v -> {
                 ckBox.setChecked(true);
-                selectItems[pos] = true;
+                memo.setSelect(true);
                 clickListener.onLongClick(memo);
                 return true;
             });

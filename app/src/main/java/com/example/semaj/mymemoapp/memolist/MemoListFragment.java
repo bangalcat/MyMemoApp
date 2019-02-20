@@ -249,7 +249,7 @@ public class MemoListFragment extends Fragment implements MainContract.View {
 
     @Override
     public void showMemoList(List<Memo> itemList) {
-        mAdapter.submitList(itemList);
+        mAdapter.submitNewList(itemList);
     }
 
     @Override
@@ -284,7 +284,9 @@ public class MemoListFragment extends Fragment implements MainContract.View {
 
     @Override
     public void scrollUp() {
-//        mRcvMemoList.scrollTo();
-        mLayoutManager.scrollToPositionWithOffset(0,0);
+        mRcvMemoList.post(() -> {
+            mRcvMemoList.smoothScrollToPosition(0);
+            mLayoutManager.scrollToPositionWithOffset(0,0);
+        });
     }
 }
