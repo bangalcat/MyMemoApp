@@ -137,14 +137,7 @@ public class AddEditMemoFragment extends Fragment implements AddEditContract.Vie
                 mPresenter.deleteMemo();
                 break;
             case android.R.id.home: // 뒤로가기
-                if(mPresenter.isNewMemo() || mPresenter.isChanged()){
-                    Utils.getSaveAlertDialog(getContext(),"","저장 하시겠습니까?",(dialog, which) -> {
-                        mPresenter.saveMemoAndClose(mTitle.getText().toString(), mContent.getText().toString());
-                    }, (dialog, which) -> {
-                        showMemoList();
-                    }).show();
-                }else
-                    showMemoList();
+                mPresenter.onClickBackButton();
                 break;
         }
         return true;

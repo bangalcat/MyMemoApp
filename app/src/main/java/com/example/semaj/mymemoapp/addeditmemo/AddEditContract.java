@@ -36,5 +36,7 @@ public interface AddEditContract {
         void setChanged(boolean changed);
 
         boolean isChanged();
+
+        void onClickBackButton();
     }
 }
