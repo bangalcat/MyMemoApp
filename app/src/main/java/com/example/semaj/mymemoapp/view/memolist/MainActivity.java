@@ -20,7 +20,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
         MemoListFragment fragment = (MemoListFragment) getSupportFragmentManager().findFragmentById(R.id.content_frame);
         //create fragment if null
         if(fragment == null){
@@ -31,7 +30,6 @@ public class MainActivity extends AppCompatActivity {
         //create new presenter
         //presenter 생성시 fragment를 view로 넘겨주면, presenter 안에서 view에 자신을 presenter를 등록
         mPresenter = new MemoListPresenter(MemoRepository.getInstance(LocalMemoDataSource.getInstance(this)), fragment);
-
         //fab id
         mAddBtn = findViewById(R.id.fab_add);
     }
