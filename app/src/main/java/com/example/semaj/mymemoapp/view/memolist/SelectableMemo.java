@@ -1,6 +1,8 @@
-package com.example.semaj.mymemoapp.data;
+package com.example.semaj.mymemoapp.view.memolist;
 
 import android.support.annotation.Nullable;
+
+import com.example.semaj.mymemoapp.data.Memo;
 
 import java.util.Date;
 

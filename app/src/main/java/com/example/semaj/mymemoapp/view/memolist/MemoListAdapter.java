@@ -14,7 +14,6 @@ import android.widget.TextView;
 import com.example.semaj.mymemoapp.R;
 import com.example.semaj.mymemoapp.Utils;
 import com.example.semaj.mymemoapp.data.Memo;
-import com.example.semaj.mymemoapp.data.SelectableMemo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,7 +71,7 @@ public class MemoListAdapter extends ListAdapter<SelectableMemo, MemoListAdapter
 
     @Override
     public void onBindViewHolder(@NonNull MemoViewHolder memoViewHolder, int i) {
-        memoViewHolder.bind(getItem(i),selectable? mSelectListener :mClickListener, selectable, i);
+        memoViewHolder.bind(getItem(i),selectable? mSelectListener :mClickListener, selectable);
     }
 
     void setSelectable(boolean selectable) {
@@ -102,7 +101,7 @@ public class MemoListAdapter extends ListAdapter<SelectableMemo, MemoListAdapter
             ckBox = itemView.findViewById(R.id.checkBox);
             root = itemView;
         }
-        public void bind(SelectableMemo memo, ItemClickListener<Memo> clickListener, boolean selectable, int pos){
+        public void bind(SelectableMemo memo, ItemClickListener<Memo> clickListener, boolean selectable){
             tvTitle.setText(memo.getTitle());
             tvContent.setText(memo.getContent());
             tvDate.setText(Utils.getDateString(memo.getDate()).substring(5));

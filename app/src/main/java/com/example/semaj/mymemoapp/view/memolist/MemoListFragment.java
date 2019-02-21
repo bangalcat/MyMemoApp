@@ -201,9 +201,7 @@ public class MemoListFragment extends Fragment implements MainContract.View {
                 mPresenter.onClickDeleteSelectedMemos();
                 break;
             case R.id.menu_select: // 선택 모드
-                mSearchView.setQuery("",true);
                 mSearchView.onActionViewCollapsed();
-                mSearchView.clearFocus();
                 toggleSelectMode(true);
                 break;
             case R.id.menu_search: // 검색 버튼 - 검색은 searchView에 로직
